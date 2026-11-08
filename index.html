@@ -1,41 +1,20 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f5f1">
-  <title>gzylz trades</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script defer src="js/config.js"></script>
-  <script defer src="js/data.js"></script>
-  <script defer src="js/cart.js"></script>
-  <script defer src="js/home.js"></script>
-</head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f7f5f1"><title>gzylz trades</title><link rel="stylesheet" href="css/style.css"><script defer src="js/config.js"></script><script defer src="js/data.js"></script><script defer src="js/cart.js"></script><script defer src="js/home.js"></script></head>
 <body>
-  <header class="site-header">
-    <a class="brand" href="index.html">gzylz trades</a>
-    <nav aria-label="Main navigation"><a class="active" href="index.html">Home</a><a href="audio.html">Audio</a><a href="video.html">Video</a></nav>
-    <button class="cart-trigger" type="button" data-cart-open>Cart <span data-cart-count>0</span></button>
-  </header>
-  <main class="home-main">
-    <p class="eyebrow">MUSICAL THEATRE TRADING LIST</p>
-    <h1>Welcome to my collection.</h1>
-    <p class="intro">Browse my audio and video recordings, or select items to build a trade list.</p>
-    <div class="search-counts"><span><strong data-audio-count>—</strong> audios</span><span><strong data-video-count>—</strong> videos</span></div>
-    <label class="search-label" for="home-search">Search my collection</label>
-    <input id="home-search" class="search-input" type="search" placeholder="Search shows, productions, masters…">
-    <div class="search-results" id="home-results" aria-live="polite"></div>
-    <section class="browse-grid" aria-label="Browse recordings">
-      <a class="browse-tile" href="audio.html"><span class="tile-kicker">BROWSE COLLECTION</span><span class="tile-title">Audio <span data-audio-count>—</span></span><span class="tile-arrow">Explore audio →</span></a>
-      <a class="browse-tile" href="video.html"><span class="tile-kicker">BROWSE COLLECTION</span><span class="tile-title">Video <span data-video-count>—</span></span><span class="tile-arrow">Explore video →</span></a>
-    </section>
-  </main>
-  <dialog class="cart-dialog" id="cart-dialog">
-    <div class="dialog-head"><div><p class="eyebrow">YOUR SELECTION</p><h2>Trade cart <span data-cart-count>0</span></h2></div><button class="icon-button" type="button" data-cart-close aria-label="Close">×</button></div>
-    <div id="cart-content"></div>
-    <div class="dialog-actions"><button class="button button-quiet" type="button" data-cart-clear>Clear all</button><button class="button button-primary" type="button" data-cart-copy>Copy list</button></div>
-    <p class="copy-status" id="copy-status" aria-live="polite"></p>
-  </dialog>
-  <footer>gzylz trades</footer>
-</body>
-</html>
+<header class="site-header"><a class="brand" href="index.html">gzylz trades</a><nav aria-label="Main navigation"><a class="active" href="index.html">Home</a><a href="audio.html">Audio</a><a href="video.html">Video</a></nav><button class="cart-trigger" type="button" data-cart-open>Copy <span data-cart-count>0</span></button></header>
+<main class="home-main">
+<h1>Welcome!</h1>
+<p class="intro">Select the recordings you are interested in, and you can press the copy button in the upper right corner to copy them!</p>
+<div class="search-counts"><span><strong data-audio-count>—</strong> audios</span><span><strong data-video-count>—</strong> videos</span></div>
+<label class="search-label" for="home-search">Search my collection</label><input id="home-search" class="search-input" type="search" placeholder="Search shows, productions, masters…">
+<div class="search-filters" aria-label="Filter search results"><button type="button" data-search-filter="all" class="active">All</button><button type="button" data-search-filter="audio">Audio</button><button type="button" data-search-filter="video">Video</button></div>
+<div class="search-results group-list" id="home-results" aria-live="polite"></div>
+<section class="browse-grid" aria-label="Browse recordings">
+<a class="browse-tile" href="audio.html"><span class="tile-title">Audio <span data-audio-count>—</span></span><span class="tile-arrow">→</span></a>
+<a class="browse-tile" href="video.html"><span class="tile-title">Video <span data-video-count>—</span></span><span class="tile-arrow">→</span></a>
+<a class="browse-tile" href="wants.html"><span class="tile-title">Wants</span><span class="tile-arrow">→</span></a>
+</section>
+</main>
+<dialog class="cart-dialog" id="cart-dialog"><div class="dialog-head"><div><p class="eyebrow">YOUR SELECTION</p><h2>Selected recordings <span data-cart-count>0</span></h2></div><button class="icon-button" type="button" data-cart-close aria-label="Close">×</button></div><div id="cart-content"></div><div class="dialog-actions"><button class="button button-quiet" type="button" data-cart-clear>Clear all</button><button class="button button-primary" type="button" data-cart-copy>Copy list</button></div><p class="copy-status" id="copy-status" aria-live="polite"></p></dialog><footer>gzylz trades</footer>
+</body></html>
