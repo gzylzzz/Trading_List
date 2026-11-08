@@ -76,3 +76,6 @@
 @media(max-width:620px){
  .home-note:not(.is-collapsed){height:205px;max-height:205px;overflow:hidden}
 }
+
+/* Number of individual recordings matching the Home search */
+.search-result-count{margin:10px 0 0;color:var(--muted);font-size:12px;font-weight:600;min-height:18px}
