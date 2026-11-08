@@ -48,7 +48,6 @@
     }catch(error){console.error("Unable to load text sheet:",error);}
     return content;
   }
-  if(window.matchMedia&&window.matchMedia("(max-width: 620px)").matches){const card=document.getElementById("home-note");const b=document.querySelector(".home-note-toggle");if(card)card.classList.add("is-collapsed");if(b)b.setAttribute("aria-expanded","false");}
   document.addEventListener("click",e=>{const b=e.target.closest(".home-note-toggle");if(!b)return;const card=b.closest(".home-note"),collapsed=card.classList.toggle("is-collapsed");b.setAttribute("aria-expanded",String(!collapsed));});
   window.GZYLZ_TEXT={load,getContact:()=>content.contact};
   document.addEventListener("DOMContentLoaded",load);
