@@ -4,7 +4,7 @@
  function write(items){localStorage.setItem(KEY,JSON.stringify(items));update();}
  function safe(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
  function update(){
-  const items=read();document.querySelectorAll("[data-cart-count]").forEach(e=>e.textContent=items.length);
+  const items=read();document.querySelectorAll("[data-cart-count]").forEach(e=>e.textContent=items.length);const selected=new Set(items.map(x=>x.id));document.querySelectorAll("[data-select-record]").forEach(cb=>cb.checked=selected.has(cb.dataset.selectRecord));
   const box=document.getElementById("cart-content");if(!box)return;
   if(!items.length){box.innerHTML='<p class="empty-state">Your selection is empty.</p>';return;}
   box.innerHTML=["Video","Audio"].map(kind=>{const group=items.filter(x=>x.kind===kind);if(!group.length)return "";
