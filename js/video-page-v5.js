@@ -21,7 +21,7 @@
  function render(rows){
   const box=$("#video-records");$("#video-count").textContent=rows.length;
   const groups=new Map();rows.forEach((r,i)=>{const t=val(r,"tital","title"),key=has(t)?t:"Other recordings "+(i+1);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r);});
-  box.innerHTML=groups.size?[...groups.entries()].map(([name,items],i)=>'<section class="show-group" data-group="'+i+'"><button class="group-toggle" type="button" aria-expanded="false"><span class="group-name">'+esc(name)+'</span><span class="count-pill">'+items.length+'</span><span class="chevron">⌄</span></button><div class="record-list" hidden>'+(items.length>1?'<div class="group-actions"><button type="button" class="button" data-group-details>Show all details</button></div>':"")+items.map(record).join("")+'</div>'</section>').join(""):'<div class="empty-state">No video recordings found.</div>';
+   box.innerHTML=groups.size?[...groups.entries()].map(([name,items],i)=>`<section class="show-group" data-group="${i}"><button class="group-toggle" type="button" aria-expanded="false"><span class="group-name">${esc(name)}</span><span class="count-pill">${items.length}</span><span class="chevron">⌄</span></button><div class="record-list" hidden>${items.length>1?'<div class="group-actions"><button type="button" class="button" data-group-details>Show all details</button></div>':""}${items.map(record).join("")}</div></section>`).join(""):'<div class="empty-state">No video recordings found.</div>';
   if(window.GZYLZ_CART){const selected=new Set(window.GZYLZ_CART.read().map(x=>x.id));box.querySelectorAll("[data-select-record]").forEach(cb=>cb.checked=selected.has(cb.dataset.selectRecord));window.GZYLZ_CART.update();}
  }
  document.addEventListener("click",e=>{
