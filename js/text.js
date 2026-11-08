@@ -39,6 +39,7 @@
       if(status)status.innerHTML=format(content.status);
       const home=document.getElementById("home-note-content");
       if(home)home.innerHTML=formatHome(content.home);
+      if(!content.home.trim()){const card=document.getElementById("home-note");if(card)card.hidden=true;}
       if(rules)rules.innerHTML=format(content.rules);
       if(wants)wants.innerHTML=format(content.wants);
       const contact=document.getElementById("contact-content-copy");
