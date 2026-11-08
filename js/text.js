@@ -1,5 +1,5 @@
 (function(){
-  let content={status:"",rules:"",wants:"",contact:""};
+  let content={status:"",rules:"",wants:"",contact:"",home:""};
   function clean(value){return String(value??"").trim();}
   function get(row,...keys){
     for(const key of keys){
@@ -11,6 +11,12 @@
   function format(value){
     const escape=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
     return escape(value).replace(/\r?\n/g,"<br>");
+  }
+  function formatHome(value){
+    let safe=String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    safe=safe.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
+    safe=safe.replace(/\{\{(#[0-9a-fA-F]{3,8})\}\}([\s\S]*?)\{\{\/color\}\}/g,'<span style="color:$1">$2</span>');
+    return safe.split(/\r?\n/).map(line=>line===""?"<div class=\"home-note-blank\"></div>":line).join("<br>");
   }
   async function load(){
     try{
@@ -24,12 +30,15 @@
         status:get(row,"statues","status"),
         rules:get(row,"rules"),
         wants:get(row,"wants"),
-        contact:get(row,"contact")
+        contact:get(row,"contact"),
+        home:get(row,"home")
       };
       const status=document.getElementById("status-content");
       const rules=document.getElementById("rules-content");
       const wants=document.getElementById("wants-content");
       if(status)status.innerHTML=format(content.status);
+      const home=document.getElementById("home-note-content");
+      if(home)home.innerHTML=formatHome(content.home);
       if(rules)rules.innerHTML=format(content.rules);
       if(wants)wants.innerHTML=format(content.wants);
       const contact=document.getElementById("contact-content-copy");
@@ -38,6 +47,8 @@
     }catch(error){console.error("Unable to load text sheet:",error);}
     return content;
   }
+  if(window.matchMedia&&window.matchMedia("(max-width: 620px)").matches){const card=document.getElementById("home-note");const b=document.querySelector(".home-note-toggle");if(card)card.classList.add("is-collapsed");if(b)b.setAttribute("aria-expanded","false");}
+  document.addEventListener("click",e=>{const b=e.target.closest(".home-note-toggle");if(!b)return;const card=b.closest(".home-note"),collapsed=card.classList.toggle("is-collapsed");b.setAttribute("aria-expanded",String(!collapsed));});
   window.GZYLZ_TEXT={load,getContact:()=>content.contact};
   document.addEventListener("DOMContentLoaded",load);
 })();
