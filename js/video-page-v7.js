@@ -3,8 +3,9 @@
  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const val=(r,...n)=>window.GZYLZ_DATA.get(r,...n);
  const has=s=>String(s??"").trim()!=="";
- const rich=s=>String(s??"").replace(/\r\n?/g,"\n").split(/\n{2,}/).map(p=>'<p>'+esc(p).replace(/\n/g,"<br>")+'</p>').join("");
- function pill(t,c=""){return has(t)?'<span class="pill '+c+'">'+esc(t)+'</span>':"";}
+ const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\{\{(#[0-9a-fA-F]{3,8})\}\}([\s\S]*?)\{\{\/color\}\}/g,'<span style="color:$1">$2</span>').replace(/\r\n?/g,"\n").replace(/\n/g,"<br>");
+ const rich=s=>String(s??"").replace(/\r\n?/g,"\n").split(/\n{2,}/).map(p=>'<p>'+inline(p)+'</p>').join("");
+ function pill(t,c=""){return has(t)?'<span class="pill '+c+'">'+inline(t)+'</span>':"";}
  function detail(label,value){return has(value)?'<div class="detail-line"><span class="detail-label">'+label+':</span><div class="detail-value">'+rich(value)+'</div></div>':"";}
  function record(r){
   const show=val(r,"show"),prod=val(r,"production"),date=val(r,"date"),master=val(r,"master"),cast=val(r,"cast"),notes=val(r,"notes"),type=val(r,"file type"),size=val(r,"size"),gift=val(r,"gift/limited trade","gift / limited trade"),nft=val(r,"nft"),highlights=val(r,"highlights"),concert=val(r,"concert or not"),subs=val(r,"subtitles"),language=val(r,"language");
