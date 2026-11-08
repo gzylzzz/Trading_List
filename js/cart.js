@@ -4,11 +4,17 @@
  function write(items){localStorage.setItem(KEY,JSON.stringify(items));update();}
  function safe(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
  function update(){
-  const items=read();document.querySelectorAll("[data-cart-count]").forEach(e=>e.textContent=items.length);const selected=new Set(items.map(x=>x.id));document.querySelectorAll("[data-select-record]").forEach(cb=>cb.checked=selected.has(cb.dataset.selectRecord));
-  const contact=document.getElementById("contact-content-copy");if(contact&&window.GZYLZ_TEXT)contact.textContent=window.GZYLZ_TEXT.getContact();\n  const box=document.getElementById("cart-content");if(!box)return;
+  const items=read();
+  document.querySelectorAll("[data-cart-count]").forEach(e=>e.textContent=items.length);
+  const selected=new Set(items.map(x=>x.id));
+  document.querySelectorAll("[data-select-record]").forEach(cb=>cb.checked=selected.has(cb.dataset.selectRecord));
+  const contact=document.getElementById("contact-content-copy");
+  if(contact)contact.textContent=window.GZYLZ_TEXT?window.GZYLZ_TEXT.getContact():"";
+  const box=document.getElementById("cart-content");if(!box)return;
   if(!items.length){box.innerHTML='<p class="empty-state">Your selection is empty.</p>';return;}
-  box.innerHTML=["Video","Audio"].map(kind=>{const group=items.filter(x=>x.kind===kind);if(!group.length)return "";
-   return '<section class="cart-section"><h3>['+kind+']</h3>'+group.map((x,i)=>'<div class="cart-item"><span>'+safe(x.line)+'</span><button type="button" data-remove="'+safe(x.id)+'" aria-label="Remove item">Remove</button></div>').join("")+'</section>';
+  box.innerHTML=["Video","Audio"].map(kind=>{
+   const group=items.filter(x=>x.kind===kind);if(!group.length)return "";
+   return '<section class="cart-section"><h3>['+kind+']</h3>'+group.map(x=>'<div class="cart-item"><span>'+safe(x.line)+'</span><button type="button" data-remove="'+safe(x.id)+'" aria-label="Remove item">Remove</button></div>').join("")+'</section>';
   }).join("");
  }
  function open(){const d=document.getElementById("cart-dialog");if(d){update();d.showModal();}}
@@ -18,7 +24,13 @@
   if(e.target.closest("[data-cart-clear]")){write([]);const s=document.getElementById("copy-status");if(s)s.textContent="";}
   const remove=e.target.closest("[data-remove]");if(remove)write(read().filter(x=>x.id!==remove.dataset.remove));
   if(e.target.closest("[data-cart-copy]")){
-   const items=read();const output=["Video","Audio"].map(k=>{const a=items.filter(x=>x.kind===k);return a.length?"["+k+"]\n"+a.map(x=>"- "+x.line).join("\n"):"";}).filter(Boolean).join("\n\n");
+   const items=read();
+   const list=["Video","Audio"].map(k=>{
+    const group=items.filter(x=>x.kind===k);
+    return group.length?"["+k+"]\\n"+group.map(x=>"- "+x.line).join("\\n"):"";
+   }).filter(Boolean).join("\\n\\n");
+   const contact=window.GZYLZ_TEXT?window.GZYLZ_TEXT.getContact():"";
+   const output=list+(contact?(list?"\\n\\n":"")+"Contact:\\n"+contact:"");
    const status=document.getElementById("copy-status");
    if(!output){if(status)status.textContent="Your selection is empty.";return;}
    navigator.clipboard.writeText(output).then(()=>{if(status)status.textContent="Copied!";}).catch(()=>{if(status)status.textContent="Copy is unavailable in this browser. Please use a secure connection.";});
@@ -32,7 +44,9 @@
   write(items);
  });
  document.addEventListener("DOMContentLoaded",()=>{
-  const selected=new Set(read().map(x=>x.id));document.querySelectorAll("[data-select-record]").forEach(cb=>cb.checked=selected.has(cb.dataset.selectRecord));update();
+  const selected=new Set(read().map(x=>x.id));
+  document.querySelectorAll("[data-select-record]").forEach(cb=>cb.checked=selected.has(cb.dataset.selectRecord));
+  update();
  });
  window.GZYLZ_CART={read,update};
 })();
