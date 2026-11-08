@@ -5,7 +5,7 @@
  function safe(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
  function update(){
   const items=read();document.querySelectorAll("[data-cart-count]").forEach(e=>e.textContent=items.length);const selected=new Set(items.map(x=>x.id));document.querySelectorAll("[data-select-record]").forEach(cb=>cb.checked=selected.has(cb.dataset.selectRecord));
-  const box=document.getElementById("cart-content");if(!box)return;
+  const contact=document.getElementById("contact-content-copy");if(contact&&window.GZYLZ_TEXT)contact.textContent=window.GZYLZ_TEXT.getContact();\n  const box=document.getElementById("cart-content");if(!box)return;
   if(!items.length){box.innerHTML='<p class="empty-state">Your selection is empty.</p>';return;}
   box.innerHTML=["Video","Audio"].map(kind=>{const group=items.filter(x=>x.kind===kind);if(!group.length)return "";
    return '<section class="cart-section"><h3>['+kind+']</h3>'+group.map((x,i)=>'<div class="cart-item"><span>'+safe(x.line)+'</span><button type="button" data-remove="'+safe(x.id)+'" aria-label="Remove item">Remove</button></div>').join("")+'</section>';
