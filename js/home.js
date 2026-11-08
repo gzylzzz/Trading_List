@@ -17,7 +17,7 @@
   (has(get(r,"highlights"))?'<div class="detail-line"><span class="detail-label">Highlights:</span> '+esc(get(r,"highlights"))+'</div>':'')+
   (has(get(r,"language"))?'<div class="detail-line"><span class="detail-label">Language:</span> '+esc(get(r,"language"))+'</div>':'')+
   (has(get(r,"subtitles"))?'<div class="detail-line"><span class="detail-label">Subtitles:</span> '+esc(get(r,"subtitles"))+'</div>':'')+
-  '<div class="record-pills">'+pill(type,"pill-type")+pill(size)+pill(tracking,"pill-tracking")+pill(gift)+pill(nft,"pill-nft")+'</div></div></article>';
+  '<div class="record-pills">'+pill(type,"pill-type")+pill(size)+pill(tracking,"pill-tracking")+pill(gift,giftClass(gift))+pill(nft,"pill-nft")+'</div></div></article>';
  }
  function render(){
   const q=$("#home-search").value.trim().toLowerCase(),out=$("#home-results"),count=$("#home-result-count");if(!q){out.innerHTML="";if(count)count.textContent="";return;}
