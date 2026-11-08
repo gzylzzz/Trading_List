@@ -32,3 +32,9 @@
  .group-heading .group-detail-action{padding:5px 8px;font-size:9px}
  .group-heading .count-pill{font-size:10px;padding:3px 7px}
 }
+
+/* On phones, keep the Home note floating so it never pushes the search down */
+@media(max-width:620px){
+ .home-note{position:fixed;right:12px;bottom:12px;z-index:30;width:min(190px,calc(100vw - 24px));box-shadow:0 5px 24px #29251f1a}
+ .home-note:not(.is-collapsed){width:min(330px,calc(100vw - 24px));max-height:48vh;overflow:auto}
+}
