@@ -6,10 +6,11 @@
  function update(){
   const items=read();
   document.querySelectorAll("[data-cart-count]").forEach(e=>e.textContent=items.length);
+  document.querySelectorAll("[data-floating-copy]").forEach(e=>{e.hidden=items.length===0;});
   const selected=new Set(items.map(x=>x.id));
   document.querySelectorAll("[data-select-record]").forEach(cb=>cb.checked=selected.has(cb.dataset.selectRecord));
   const contact=document.getElementById("contact-content-copy");
-  if(contact)contact.textContent=window.GZYLZ_TEXT?window.GZYLZ_TEXT.getContact():"";
+  if(contact)contact.innerHTML=window.GZYLZ_TEXT?window.GZYLZ_TEXT.getContactHTML():"";
   const box=document.getElementById("cart-content");if(!box)return;
   if(!items.length){box.innerHTML='<p class="empty-state">Your selection is empty.</p>';return;}
   box.innerHTML=["Video","Audio"].map(kind=>{
