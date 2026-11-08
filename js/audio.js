@@ -14,7 +14,7 @@
   (has(cast)?'<div class="detail-line"><span class="detail-label">Cast:</span> '+esc(cast)+'</div>':'')+
   (has(notes)?'<div class="detail-line"><span class="detail-label">Notes:</span> '+esc(notes)+'</div>':'')+
   (has(myNotes)?'<div class="detail-line my-notes">My Notes: '+esc(myNotes)+'</div>':'')+
-  '<div class="record-pills">'+pill(type,"pill-type")+pill(size)+pill(tracking,"pill-tracking")+pill(gift)+pill(nft,"pill-nft")+'</div></div></article>';
+  '<div class="record-pills">'+pill(type,"pill-type")+pill(size)+pill(tracking,"pill-tracking")+pill(gift,gift.toLowerCase().includes("never gift")?"pill-never":"")+pill(nft,"pill-nft")+'</div></div></article>';
  }
  function groupKey(r,i){const title=val(r,"title");return has(title)?title:"__blank_"+i;}
  function render(rows){
@@ -23,6 +23,8 @@
   container.innerHTML=Array.from(groups.entries()).map(([name,items],i)=>'<section class="show-group" data-group="'+i+'"><button class="group-toggle" type="button" aria-expanded="false"><span class="group-name">'+esc(name.startsWith("__blank_")?"Other recordings":name)+'</span><span class="count-pill">'+items.length+' '+(items.length===1?"audio":"audios")+'</span><span class="chevron">⌄</span></button><div class="record-list" hidden>'+items.map(renderRecord).join("")+'</div></section>').join("");
  }
  document.addEventListener("click",e=>{
+  const allDetails=e.target.closest("[data-expand-details]");
+  if(allDetails){const open=allDetails.dataset.open!=="true";document.querySelectorAll(".show-group").forEach(s=>{const list=s.querySelector(".record-list");list.hidden=!open;s.classList.toggle("open",open);s.querySelector(".group-toggle").setAttribute("aria-expanded",String(open));s.querySelectorAll(".record-details").forEach(d=>{d.hidden=!open;const summary=d.previousElementSibling;summary.setAttribute("aria-expanded",String(open));summary.classList.toggle("open",open);});});allDetails.dataset.open=String(open);allDetails.textContent=open?"Hide all details":"Show all details";return;}
   const group=e.target.closest(".group-toggle");if(group){const section=group.closest(".show-group"),list=section.querySelector(".record-list"),open=list.hidden;list.hidden=!open;section.classList.toggle("open",open);group.setAttribute("aria-expanded",String(open));return;}
   const summary=e.target.closest(".record-summary");if(summary&&!e.target.closest("input")){const detail=summary.nextElementSibling,open=detail.hidden;detail.hidden=!open;summary.setAttribute("aria-expanded",String(open));summary.classList.toggle("open",open);}
   if(e.target.closest("[data-expand-all]")){const open=e.target.closest("[data-expand-all]").dataset.expandAll==="true";document.querySelectorAll(".show-group").forEach(s=>{s.querySelector(".record-list").hidden=!open;s.classList.toggle("open",open);s.querySelector(".group-toggle").setAttribute("aria-expanded",String(open));});e.target.closest("[data-expand-all]").textContent=open?"Collapse all":"Expand all";e.target.closest("[data-expand-all]").dataset.expandAll=String(!open);}
