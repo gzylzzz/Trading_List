@@ -3,6 +3,7 @@
  let audio=[],video=[],filter="all";
  const get=(r,...n)=>window.GZYLZ_DATA.get(r,...n),has=s=>String(s??"").trim()!=="";
  const pill=(s,c="")=>has(s)?'<span class="pill '+c+'">'+esc(s)+'</span>':"";
+ const giftClass=s=>{const v=String(s??"").trim().toLowerCase();if(v.includes("never gift"))return "pill-never";if(v.includes("limited trade"))return "pill-limited";if(v.includes("only gift"))return "pill-only-gift";return "";};
  function record(r){
   const kind=r._kind,show=get(r,"show")||"Untitled recording",prod=get(r,"production"),date=get(r,"date (yyyy-mm-dd)","date"),master=get(r,"master"),cast=get(r,"cast"),notes=get(r,"notes"),my=get(r,"my notes"),nft=get(r,"nft");
   const type=get(r,"type","file type"),size=get(r,"size"),tracking=get(r,"tracked/untracked"),gift=get(r,"gift / limited trade","gift/limited trade"),concert=get(r,"concert or not"),uncertain=get(r,"uncertain");
