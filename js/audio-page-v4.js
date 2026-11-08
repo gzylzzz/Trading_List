@@ -2,7 +2,7 @@
  const $=s=>document.querySelector(s);
  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const val=(r,...n)=>window.GZYLZ_DATA.get(r,...n);
- const has=s=>String(s??"").trim()!=="";
+ const has=s=>String(s??"").trim()!=="";\n const giftClass=s=>{const v=String(s??"").trim().toLowerCase();if(v.includes("never gift"))return "pill-never";if(v.includes("limited trade"))return "pill-limited";if(v.includes("only gift"))return "pill-only-gift";return "";};
  const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\{\{(#[0-9a-fA-F]{3,8})\}\}([\s\S]*?)\{\{\/color\}\}/g,'<span style="color:$1">$2</span>').replace(/\r\n?/g,"\n").replace(/\n/g,"<br>");
  const rich=s=>String(s??"").replace(/\r\n?/g,"\n").split(/\n{2,}/).map(p=>'<p>'+inline(p)+'</p>').join("");
  function pill(t,c=""){return has(t)?'<span class="pill '+c+'">'+inline(t)+'</span>':"";}
@@ -12,7 +12,7 @@
   const id=r._id,disabled=has(nft),line=[show,date,master,size].filter(has).join(" | ");
   return '<article class="record"><div class="record-summary" role="button" tabindex="0" aria-expanded="false"><input class="record-check" type="checkbox" aria-label="Select '+esc(show)+'" data-select-record="'+id+'" data-kind="Audio" data-line="'+esc(line)+'" '+(disabled?'disabled title="NFT — unavailable for selection"':'')+'><div class="record-summary-main"><span class="record-show">'+inline(show||"Untitled recording")+'</span><span class="record-submeta">'+[ [prod,date].filter(has).map(inline).join(" • "), has(master)?inline(master):"" ].filter(has).join(" | ")+'</span></div><span class="chevron">⌄</span></div><div class="record-details" hidden>'+
   detail("Cast",cast)+detail("Notes",notes)+detail("My Notes",myNotes,"my-notes")+
-  '<div class="record-pills">'+pill(type,"pill-type")+pill(size)+pill(tracking,"pill-tracking")+pill(gift,gift.toLowerCase().includes("never gift")?"pill-never":"")+pill(nft,"pill-nft")+(concert==="Concert"?pill("Concert","pill-concert"):"")+(uncertain.toLowerCase()==="yes"?pill("Unsure date info","pill-uncertain"):"")+'</div></div></article>';
+  '<div class="record-pills">'+pill(type,"pill-type")+pill(size)+pill(tracking,"pill-tracking")+pill(gift,giftClass(gift))+pill(nft,"pill-nft")+(concert==="Concert"?pill("Concert","pill-concert"):"")+(uncertain.toLowerCase()==="yes"?pill("Unsure date info","pill-uncertain"):"")+'</div></div></article>';
  }
  function render(rows){
   const box=$("#audio-groups");$("#audio-count").textContent=rows.length;
