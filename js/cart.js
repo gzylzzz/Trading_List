@@ -29,8 +29,7 @@
     const group=items.filter(x=>x.kind===k);
     return group.length?"["+k+"]\n"+group.map(x=>"- "+x.line).join("\n"):"";
    }).filter(Boolean).join("\n\n");
-   const contact=window.GZYLZ_TEXT?window.GZYLZ_TEXT.getContact():"";
-   const output=list+(contact?(list?"\n\n":"")+"Contact:\n"+contact:"");
+   const output=list;
    const status=document.getElementById("copy-status");
    if(!output){if(status)status.textContent="Your selection is empty.";return;}
    navigator.clipboard.writeText(output).then(()=>{if(status)status.textContent="Copied!";}).catch(()=>{if(status)status.textContent="Copy is unavailable in this browser. Please use a secure connection.";});
