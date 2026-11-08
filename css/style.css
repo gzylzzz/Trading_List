@@ -47,3 +47,26 @@
  .home-note-toggle{font-size:13px;font-weight:700;letter-spacing:.04em}
  .home-note-content{font-size:12px;line-height:1.65}
 }
+
+/* Fixed-size READ ME panel with its own scroll area */
+.home-note{height:260px;max-height:260px;display:flex;flex-direction:column;overflow:hidden}
+.home-note-toggle{flex:none}
+.home-note-content{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding-right:7px}
+.home-note-content::-webkit-scrollbar{width:5px}
+.home-note-content::-webkit-scrollbar-thumb{background:#d8d1c8;border-radius:99px}
+.home-note.is-collapsed{height:auto;max-height:none}
+@media(max-width:620px){
+ .home-note{height:205px;max-height:205px;min-width:0}
+ .home-note-content{font-size:11px;padding-right:5px}
+}
+/* Recording summary: title first, production/date/master next */
+.record-summary-main{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
+.record-show{font-size:14px;line-height:1.45;color:var(--ink)}
+.record-submeta{font-size:12px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
+@media(max-width:620px){.record-show{font-size:13px}.record-submeta{font-size:11px}}
+/* Each non-empty Wants row becomes its own text card */
+.wants-list{display:flex;flex-direction:column;gap:14px}
+.wants-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;overflow-wrap:anywhere}
+.wants-card h2{font:500 22px 'Playfair Display',serif;margin:0 0 10px}
+.wants-card-content{font-size:14px;line-height:1.75}
+@media(max-width:620px){.wants-card{padding:17px}.wants-card h2{font-size:20px}}
