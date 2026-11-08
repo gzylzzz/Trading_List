@@ -91,3 +91,8 @@
 .search-result-count:empty{display:none}
 .search-results:empty{display:none}
 .browse-grid{margin-top:28px}
+
+/* Consistent colours for gift / trade restrictions across Audio, Video and Home. */
+.pill-never{background:#f7e3e3!important;color:#a34f55!important}
+.pill-limited{background:#f7efcf!important;color:#8a6b20!important}
+.pill-only-gift{background:#e2eee3!important;color:#527b58!important}
