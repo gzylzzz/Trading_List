@@ -24,8 +24,8 @@
   const pool=filter==="audio"?audio:filter==="video"?video:[...audio,...video];
   const matches=pool.filter(r=>Object.entries(r).some(([k,v])=>!k.startsWith("_")&&String(v).toLowerCase().includes(q)));
   matches.sort((a,b)=>String(get(a,"show")).localeCompare(String(get(b,"show")),undefined,{sensitivity:"base"}));
-  const groups=new Map();matches.forEach((r,i)=>{const t=get(r,"title"),key=has(t)?t:"Other recordings "+(i+1);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r);});
-  out.innerHTML=groups.size?[...groups.entries()].map(([name,items],i)=>'<section class="show-group" data-group="'+i+'"><button class="group-toggle" type="button" aria-expanded="false"><span class="group-name">'+esc(name)+'</span><span class="count-pill">'+items.length+' '+(items.length===1?"recording":"recordings")+'</span><span class="chevron">⌄</span></button><div class="record-list" hidden>'+items.map(record).join("")+'</div></section>').join(""):'<div class="empty-state">No matching recordings.</div>';
+  const groups=new Map();matches.forEach((r,i)=>{const t=get(r,"title")||get(r,"tital"),key=has(t)?t:"Other recordings "+(i+1);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r);});
+  out.innerHTML=groups.size?[...groups.entries()].map(([name,items],i)=>'<section class="show-group" data-group="'+i+'"><button class="group-toggle" type="button" aria-expanded="false"><span class="group-name">'+esc(name)+'</span><span class="count-pill">'+items.length+'</span><span class="chevron">⌄</span></button><div class="record-list" hidden>'+items.map(record).join("")+'</div></section>').join(""):'<div class="empty-state">No matching recordings.</div>';
   const selected=new Set((window.GZYLZ_CART?.read()||[]).map(x=>x.id));out.querySelectorAll("[data-select-record]").forEach(cb=>cb.checked=selected.has(cb.dataset.selectRecord));
  }
  document.addEventListener("click",e=>{
