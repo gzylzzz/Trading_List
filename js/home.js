@@ -1,21 +1,41 @@
 (function(){
- const $=s=>document.querySelector(s), esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
- let audio=[],video=[];
- async function init(){
-  try{
-   [audio,video]=await Promise.all([window.GZYLZ_DATA.loadSheet("audio"),window.GZYLZ_DATA.loadSheet("video")]);
-   document.querySelectorAll("[data-audio-count]").forEach(e=>e.textContent=audio.length);
-   document.querySelectorAll("[data-video-count]").forEach(e=>e.textContent=video.length);
-  }catch(e){const r=$("#home-results");if(r)r.innerHTML='<p class="empty-state">Could not load the collection. Please refresh the page.</p>';}
+ const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ let audio=[],video=[],filter="all";
+ const get=(r,...n)=>window.GZYLZ_DATA.get(r,...n),has=s=>String(s??"").trim()!=="";
+ const pill=(s,c="")=>has(s)?'<span class="pill '+c+'">'+esc(s)+'</span>':"";
+ function record(r){
+  const kind=r._kind,show=get(r,"show")||"Untitled recording",prod=get(r,"production"),date=get(r,"date (yyyy-mm-dd)","date"),master=get(r,"master"),cast=get(r,"cast"),notes=get(r,"notes"),my=get(r,"my notes"),nft=get(r,"nft");
+  const type=get(r,"type","file type"),size=get(r,"size"),tracking=get(r,"tracked/untracked"),gift=get(r,"gift / limited trade","gift/limited trade"),concert=get(r,"concert or not"),uncertain=get(r,"uncertain");
+  const id=r._id,line=[show,date,master,size].filter(has).join(" | "),disabled=has(nft);
+  return '<article class="record"><div class="record-summary" role="button" tabindex="0" aria-expanded="false"><input class="record-check" type="checkbox" aria-label="Select '+esc(show)+'" data-select-record="'+id+'" data-kind="'+(kind==="audio"?"Audio":"Video")+'" data-line="'+esc(line)+'" '+(disabled?'disabled title="NFT — unavailable for selection"':'')+'><div class="record-summary-main"><span class="record-show">'+esc(show)+'</span>'+pill(kind==="audio"?"Audio":"Video","pill-type")+'<span class="record-meta">'+esc([prod,date].filter(has).join(" | "))+'</span><span class="record-master">'+(has(master)?"| "+esc(master):"")+'</span></div><span class="chevron">⌄</span></div><div class="record-details" hidden>'+
+  '<div class="detail-line"><strong>'+esc(show)+'</strong> '+pill(concert==="Concert"?"Concert":"")+'</div>'+
+  (has(prod)||has(date)?'<div class="detail-line"><strong>'+esc([prod,date].filter(has).join(" | "))+'</strong> '+pill(uncertain.toLowerCase()==="yes"?"Unsure date info":"")+'</div>':'')+
+  (has(master)?'<div class="detail-line"><span class="detail-label">Master:</span> '+esc(master)+'</div>':'')+
+  (has(cast)?'<div class="detail-line"><span class="detail-label">Cast:</span> '+esc(cast)+'</div>':'')+
+  (has(notes)?'<div class="detail-line"><span class="detail-label">Notes:</span> '+esc(notes)+'</div>':'')+
+  (has(my)?'<div class="detail-line my-notes">My Notes: '+esc(my)+'</div>':'')+
+  (has(get(r,"highlights"))?'<div class="detail-line"><span class="detail-label">Highlights:</span> '+esc(get(r,"highlights"))+'</div>':'')+
+  (has(get(r,"language"))?'<div class="detail-line"><span class="detail-label">Language:</span> '+esc(get(r,"language"))+'</div>':'')+
+  (has(get(r,"subtitles"))?'<div class="detail-line"><span class="detail-label">Subtitles:</span> '+esc(get(r,"subtitles"))+'</div>':'')+
+  '<div class="record-pills">'+pill(type,"pill-type")+pill(size)+pill(tracking,"pill-tracking")+pill(gift)+pill(nft,"pill-nft")+'</div></div></article>';
  }
- function search(){
-  const q=$("#home-search").value.trim().toLowerCase(),out=$("#home-results");
-  if(!q){out.innerHTML="";return;}
-  const matches=[...audio,...video].filter(r=>Object.entries(r).some(([k,v])=>!k.startsWith("_")&&String(v).toLowerCase().includes(q))).slice(0,30);
-  out.innerHTML=matches.length?matches.map(r=>{
-   const kind=r._kind,show=window.GZYLZ_DATA.get(r,"show")||"Untitled recording",prod=window.GZYLZ_DATA.get(r,"production"),date=window.GZYLZ_DATA.get(r,"date (yyyy-mm-dd)","date");
-   return '<a class="search-result" href="'+(kind==="audio"?"audio.html":"video.html")+'"><strong>['+kind.toUpperCase()+'] '+esc(show)+'</strong><small>'+esc([prod,date].filter(Boolean).join(" · "))+'</small></a>';
-  }).join(""):'<div class="empty-state">No matching recordings.</div>';
+ function render(){
+  const q=$("#home-search").value.trim().toLowerCase(),out=$("#home-results");if(!q){out.innerHTML="";return;}
+  const pool=filter==="audio"?audio:filter==="video"?video:[...audio,...video];
+  const matches=pool.filter(r=>Object.entries(r).some(([k,v])=>!k.startsWith("_")&&String(v).toLowerCase().includes(q)));
+  matches.sort((a,b)=>String(get(a,"show")).localeCompare(String(get(b,"show")),undefined,{sensitivity:"base"}));
+  const groups=new Map();matches.forEach((r,i)=>{const t=get(r,"title"),key=has(t)?t:"Other recordings "+(i+1);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r);});
+  out.innerHTML=groups.size?[...groups.entries()].map(([name,items],i)=>'<section class="show-group" data-group="'+i+'"><button class="group-toggle" type="button" aria-expanded="false"><span class="group-name">'+esc(name)+'</span><span class="count-pill">'+items.length+' '+(items.length===1?"recording":"recordings")+'</span><span class="chevron">⌄</span></button><div class="record-list" hidden>'+items.map(record).join("")+'</div></section>').join(""):'<div class="empty-state">No matching recordings.</div>';
+  const selected=new Set((window.GZYLZ_CART?.read()||[]).map(x=>x.id));out.querySelectorAll("[data-select-record]").forEach(cb=>cb.checked=selected.has(cb.dataset.selectRecord));
  }
- document.addEventListener("DOMContentLoaded",()=>{init();$("#home-search")?.addEventListener("input",search);});
+ document.addEventListener("click",e=>{
+  const filterButton=e.target.closest("[data-search-filter]");if(filterButton){filter=filterButton.dataset.searchFilter;document.querySelectorAll("[data-search-filter]").forEach(b=>b.classList.toggle("active",b===filterButton));render();return;}
+  const group=e.target.closest(".group-toggle");if(group){const s=group.closest(".show-group"),list=s.querySelector(".record-list"),open=list.hidden;list.hidden=!open;s.classList.toggle("open",open);group.setAttribute("aria-expanded",String(open));return;}
+  const summary=e.target.closest(".record-summary");if(summary&&!e.target.closest("input")){const d=summary.nextElementSibling,open=d.hidden;d.hidden=!open;summary.setAttribute("aria-expanded",String(open));summary.classList.toggle("open",open);}
+ });
+ document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches(".record-summary")){e.preventDefault();e.target.click();}});
+ document.addEventListener("DOMContentLoaded",async()=>{
+  try{[audio,video]=await Promise.all([window.GZYLZ_DATA.loadSheet("audio"),window.GZYLZ_DATA.loadSheet("video")]);document.querySelectorAll("[data-audio-count]").forEach(e=>e.textContent=audio.length);document.querySelectorAll("[data-video-count]").forEach(e=>e.textContent=video.length);$("#home-search")?.addEventListener("input",render);document.querySelectorAll("[data-search-filter]").forEach(b=>b.classList.toggle("active",b.dataset.searchFilter==="all"));if(window.GZYLZ_CART)window.GZYLZ_CART.update();}
+  catch(e){const out=$("#home-results");if(out)out.innerHTML='<div class="empty-state">Could not load the collection. Please refresh the page.</div>';}
+ });
 })();
