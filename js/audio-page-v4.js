@@ -2,7 +2,8 @@
  const $=s=>document.querySelector(s);
  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const val=(r,...n)=>window.GZYLZ_DATA.get(r,...n);
- const has=s=>String(s??"").trim()!=="";\n const giftClass=s=>{const v=String(s??"").trim().toLowerCase();if(v.includes("never gift"))return "pill-never";if(v.includes("limited trade"))return "pill-limited";if(v.includes("only gift"))return "pill-only-gift";return "";};
+ const has=s=>String(s??"").trim()!=="";
+ const giftClass=s=>{const v=String(s??"").trim().toLowerCase();if(v.includes("never gift"))return "pill-never";if(v.includes("limited trade"))return "pill-limited";if(v.includes("only gift"))return "pill-only-gift";return "";};
  const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\{\{(#[0-9a-fA-F]{3,8})\}\}([\s\S]*?)\{\{\/color\}\}/g,'<span style="color:$1">$2</span>').replace(/\r\n?/g,"\n").replace(/\n/g,"<br>");
  const rich=s=>String(s??"").replace(/\r\n?/g,"\n").split(/\n{2,}/).map(p=>'<p>'+inline(p)+'</p>').join("");
  function pill(t,c=""){return has(t)?'<span class="pill '+c+'">'+inline(t)+'</span>':"";}
