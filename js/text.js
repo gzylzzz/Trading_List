@@ -56,6 +56,6 @@
     const card=b.closest(".home-note"),collapsed=card.classList.toggle("is-collapsed");
     b.setAttribute("aria-expanded",String(!collapsed));
   });
-  window.GZYLZ_TEXT={load,getContact:()=>content.contact};
+  window.GZYLZ_TEXT={load,getContact:()=>content.contact,getContactHTML:()=>format(content.contact)};
   document.addEventListener("DOMContentLoaded",load);
 })();
