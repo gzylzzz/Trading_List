@@ -368,7 +368,7 @@
 
     async function init() {
         try {
-            const rows = await window.GZYLZ_DATA.loadSheet("audio");
+            const rows = await window.GZYLZ_DATA.loadRecords("audio");
 
             render(rows);
 

@@ -54,7 +54,7 @@
       .toLowerCase();
   }
 
-  async function loadSheet(kind) {
+  async function loadRecords(kind) {
     var response = await fetch(window.GZYLZ_CONFIG.listFile);
 
     if (!response.ok) {
@@ -110,7 +110,7 @@
 
   window.GZYLZ_DATA = {
     parseCSV: parseCSV,
-    loadSheet: loadSheet,
+    loadRecords: loadRecords,
     get: get
   };
 })();

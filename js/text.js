@@ -56,6 +56,6 @@
     }catch(error){console.error("Unable to load text file:",error);}
     return content;
   }
-  window.GZYLZ_TEXT={load,getContact:()=>content.contact,getContactHTML:()=>format(content.contact)};
+  window.GZYLZ_TEXT={load,getContactHTML:()=>format(content.contact)};
   document.addEventListener("DOMContentLoaded",load);
 })();
