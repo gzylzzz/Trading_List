@@ -1,6 +1,6 @@
 (function(){
  const KEY=window.GZYLZ_CONFIG.cartStorageKey;
- function read(){try{let raw=localStorage.getItem(KEY);if(raw===null){raw=localStorage.getItem("gzylz-trades-cart-v1");if(raw!==null)localStorage.setItem(KEY,raw);}return JSON.parse(raw||"[]");}catch{return [];}}
+ function read(){try{return JSON.parse(localStorage.getItem(KEY)||"[]");}catch{return [];}}
  function write(items){localStorage.setItem(KEY,JSON.stringify(items));update();}
  function safe(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
  function update(){
