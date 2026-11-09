@@ -120,8 +120,9 @@
             ">";
 
         const summary =
-            '<div class="record-summary" role="button" tabindex="0" aria-expanded="false">' +
+            '<div class="record-summary">' +
             checkbox +
+            '<button type="button" class="record-summary-button" aria-expanded="false">' +
             '<div class="record-summary-main">' +
             '<span class="record-show">' +
             inline(show || "Untitled recording") +
@@ -134,6 +135,7 @@
             "</span>" +
             "</div>" +
             '<span class="chevron">⌄</span>' +
+            '</button>' +
             "</div>";
 
         const details =
@@ -263,7 +265,7 @@
 
                 const summary = details.previousElementSibling;
 
-                summary.setAttribute("aria-expanded", String(withDetails));
+                summary.querySelector(".record-summary-button").setAttribute("aria-expanded", String(withDetails));
                 summary.classList.toggle("open", !!withDetails);
             });
         }
@@ -281,7 +283,7 @@
 
                 const summary = details.previousElementSibling;
 
-                summary.setAttribute("aria-expanded", String(open));
+                summary.querySelector(".record-summary-button").setAttribute("aria-expanded", String(open));
                 summary.classList.toggle("open", open);
             });
 
@@ -342,27 +344,16 @@
             return;
         }
 
-        const summary = event.target.closest(".record-summary");
+        const summary = event.target.closest(".record-summary-button");
 
-        if (summary && !event.target.closest("input")) {
-            const details = summary.nextElementSibling;
+        if (summary) {
+            const details = summary.parentElement.nextElementSibling;
             const open = details.hidden;
 
             details.hidden = !open;
 
             summary.setAttribute("aria-expanded", String(open));
-            summary.classList.toggle("open", open);
-        }
-    });
-
-    document.addEventListener("keydown", function (event) {
-        const isSummary = event.target.matches(".record-summary");
-        const isEnter = event.key === "Enter";
-        const isSpace = event.key === " ";
-
-        if ((isEnter || isSpace) && isSummary) {
-            event.preventDefault();
-            event.target.click();
+            summary.parentElement.classList.toggle("open", open);
         }
     });
 
