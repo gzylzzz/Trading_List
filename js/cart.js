@@ -12,7 +12,7 @@
   const contact=document.getElementById("contact-content-copy");
   if(contact)contact.innerHTML=window.GZYLZ_TEXT?window.GZYLZ_TEXT.getContactHTML():"";
   const box=document.getElementById("cart-content");if(!box)return;
-  if(!items.length){box.innerHTML='<p class="empty-state">Your selection is empty.</p>';return;}
+  if(!items.length){box.innerHTML='<p class="empty-state">empty</p>';return;}
   box.innerHTML=["Video","Audio"].map(kind=>{
    const group=items.filter(x=>x.kind===kind);if(!group.length)return "";
    return '<section class="cart-section"><h3>['+kind+']</h3>'+group.map(x=>'<div class="cart-item"><span>'+safe(x.line)+'</span><button type="button" data-remove="'+safe(x.id)+'" aria-label="Remove item">Remove</button></div>').join("")+'</section>';
@@ -33,7 +33,7 @@
    const output=list;
    const status=document.getElementById("copy-status");
    if(!output){if(status)status.textContent="Your selection is empty.";return;}
-   navigator.clipboard.writeText(output).then(()=>{if(status)status.textContent="Copied!";}).catch(()=>{if(status)status.textContent="Copy is unavailable in this browser. Please use a secure connection.";});
+   navigator.clipboard.writeText(output).then(()=>{if(status)status.textContent="Copied!";}).catch(()=>{if(status)status.textContent="Copy is unavailable in this browser.";});
   }
  });
  document.addEventListener("change",e=>{
