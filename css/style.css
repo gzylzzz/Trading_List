@@ -137,44 +137,23 @@ a {
 }
 
 .home-note {
-  height: 260px;
-  max-height: 260px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 15px 17px;
 }
 
+.home-note-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .home-note-content {
-  min-height: 0;
-  flex: 1;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 10px 7px 0 0;
+  padding-top: 10px;
   font-size: 13px;
   line-height: 1.7;
   overflow-wrap: anywhere;
-}
-
-.home-note-content::-webkit-scrollbar {
-  width: 5px;
-}
-
-.home-note-content::-webkit-scrollbar-thumb {
-  background: #d8d1c8;
-  border-radius: 99px;
-}
-
-.home-note.is-collapsed {
-  height: auto;
-  max-height: none;
-}
-
-.home-note.is-collapsed .home-note-content {
-  display: none;
 }
 
 .search-counts {
@@ -795,29 +774,15 @@ footer {
   }
 
   .home-note {
-    height: 205px;
-    max-height: 205px;
     min-width: 0;
     padding: 14px 13px;
     box-shadow: none;
   }
 
-  .home-note-toggle {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: .04em;
-  }
-
   .home-note-content {
-    padding: 9px 5px 0 0;
+    padding-top: 9px;
     font-size: 11px;
     line-height: 1.65;
-  }
-
-  .home-note:not(.is-collapsed) {
-    height: 205px;
-    max-height: 205px;
-    overflow: hidden;
   }
 
   .browse-grid {
