@@ -236,10 +236,6 @@
 
         let html = "";
 
-        groups.forEach(function (items, groupName, index) {
-            // Group HTML is added below.
-        });
-
         const groupEntries = Array.from(groups.entries());
 
         groupEntries.forEach(function (group, index) {
