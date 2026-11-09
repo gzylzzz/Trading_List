@@ -271,7 +271,7 @@
         }
     }
 
-    document.addEventListener("click", function (event) {
+    document.querySelector(".page-main").addEventListener("click", function (event) {
         const localButton = event.target.closest("[data-group-details]");
 
         if (localButton) {
