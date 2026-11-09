@@ -55,7 +55,7 @@
   }
 
   async function loadSheet(kind) {
-    var response = await fetch("list.csv");
+    var response = await fetch(window.GZYLZ_CONFIG.listFile);
 
     if (!response.ok) {
       throw new Error("Could not load list.csv");
