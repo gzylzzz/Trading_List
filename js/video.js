@@ -45,7 +45,7 @@
  });
  document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches(".record-summary")){e.preventDefault();e.target.click();}});
  async function init(){
-  try{const rows=await window.GZYLZ_DATA.loadSheet("video");render(rows);if(window.GZYLZ_CART)window.GZYLZ_CART.update();}
+  try{const rows=await window.GZYLZ_DATA.loadRecords("video");render(rows);if(window.GZYLZ_CART)window.GZYLZ_CART.update();}
   catch(err){$("#video-records").innerHTML='<div class="empty-state">Something went wrong…</div>';}
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
