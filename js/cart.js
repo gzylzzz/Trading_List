@@ -117,7 +117,7 @@
 
                 if (!group.length) return "";
 
-                return "[" + k + "]\\n" + group.map(x => {
+                return "[" + k + "]\n" + group.map(x => {
                     const parts = x.show !== undefined
                         ? [x.show, x.date, x.master, x.size]
                         : String(x.line || "").split(" | ");
@@ -125,9 +125,9 @@
                     const show = parts[0] || "";
                     const details = parts.slice(1).filter(Boolean).join(" | ");
 
-                    return "• " + show + (details ? "\\n" + details : "");
-                }).join("\\n\\n");
-            }).filter(Boolean).join("\\n\\n");
+                    return "• " + show + (details ? "\n" + details : "");
+                }).join("\n\n");
+            }).filter(Boolean).join("\n\n");
 
             const output = list;
             const status = document.getElementById("copy-status");
