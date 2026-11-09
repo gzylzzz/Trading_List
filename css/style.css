@@ -137,6 +137,9 @@ a {
 }
 
 .home-note {
+  height: 260px;
+  display: flex;
+  flex-direction: column;
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -150,9 +153,12 @@ a {
 }
 
 .home-note-content {
+  flex: 1;
+  min-height: 0;
   padding-top: 10px;
   font-size: 13px;
   line-height: 1.7;
+  overflow-y: auto;
   overflow-wrap: anywhere;
 }
 
@@ -774,6 +780,7 @@ footer {
   }
 
   .home-note {
+    height: 205px;
     min-width: 0;
     padding: 14px 13px;
     box-shadow: none;
