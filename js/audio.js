@@ -46,7 +46,7 @@
  document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches(".record-summary")){e.preventDefault();e.target.click();}});
  async function init(){
   try{const rows=await window.GZYLZ_DATA.loadSheet("audio");render(rows);if(window.GZYLZ_CART)window.GZYLZ_CART.update();}
-  catch(err){$("#audio-groups").innerHTML='<div class="empty-state">Unable to load the Google Sheet right now. Please refresh and try again.<br><small>'+esc(err.message)+'</small></div>';}
+  catch(err){$("#audio-groups").innerHTML='<div class="empty-state">Unable to load right now. Please refresh and try again.<br><small>'+esc(err.message)+'</small></div>';}
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
