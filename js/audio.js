@@ -1,52 +1,389 @@
-(function(){
- const $=s=>document.querySelector(s);
- const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
- const val=(r,...n)=>window.GZYLZ_DATA.get(r,...n);
- const has=s=>String(s??"").trim()!=="";
- const giftClass=s=>{const v=String(s??"").trim().toLowerCase();if(v.includes("never gift"))return "pill-never";if(v.includes("limited trade"))return "pill-limited";if(v.includes("only gift"))return "pill-only-gift";return "";};
- const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\{\{(#[0-9a-fA-F]{3,8})\}\}([\s\S]*?)\{\{\/color\}\}/g,'<span style="color:$1">$2</span>').replace(/\r\n?/g,"\n").replace(/\n/g,"<br>");
- const rich=s=>String(s??"").replace(/\r\n?/g,"\n").split(/\n{2,}/).map(p=>'<p>'+inline(p)+'</p>').join("");
- function pill(t,c=""){return has(t)?'<span class="pill '+c+'">'+inline(t)+'</span>':"";}
- function detail(label,value,cls=""){return has(value)?'<div class="detail-line '+cls+'"><span class="detail-label">'+label+':</span><div class="detail-value">'+rich(value)+'</div></div>':"";}
- function record(r){
-  const show=val(r,"show"),prod=val(r,"production"),date=val(r,"date (yyyy-mm-dd)","date"),master=val(r,"master"),cast=val(r,"cast"),notes=val(r,"notes"),myNotes=val(r,"my notes"),type=val(r,"type"),tracking=val(r,"tracked/untracked"),size=val(r,"size"),gift=val(r,"gift / limited trade"),nft=val(r,"nft"),concert=val(r,"concert or not"),uncertain=val(r,"uncertain");
-  const id=r._id,disabled=has(nft),line=[show,date,master,size].filter(has).join(" | ");
-  return '<article class="record"><div class="record-summary" role="button" tabindex="0" aria-expanded="false"><input class="record-check" type="checkbox" aria-label="Select '+esc(show)+'" data-select-record="'+id+'" data-kind="Audio" data-line="'+esc(line)+'" data-show="'+esc(show)+'" data-date="'+esc(date)+'" data-master="'+esc(master)+'" data-size="'+esc(size)+'" '+(disabled?'disabled title="NFT EXCEPT THROUGH MASTER"':'')+'><div class="record-summary-main"><span class="record-show">'+inline(show||"Untitled recording")+'</span><span class="record-submeta">'+[ [prod,date].filter(has).map(inline).join(" • "), has(master)?inline(master):"" ].filter(has).join(" | ")+'</span></div><span class="chevron">⌄</span></div><div class="record-details" hidden>'+
-  detail("Cast",cast)+detail("Notes",notes)+detail("My Notes",myNotes,"my-notes")+
-  '<div class="record-pills">'+pill(type,"pill-type")+pill(size)+pill(tracking,"pill-tracking")+pill(gift,giftClass(gift))+pill(nft,"pill-nft")+(concert==="Concert"?pill("Concert","pill-concert"):"")+(uncertain.toLowerCase()==="yes"?pill("Unsure date info","pill-uncertain"):"")+'</div></div></article>';
- }
- function render(rows){
-  const box=$("#audio-groups");$("#audio-count").textContent=rows.length;
-  const groups=new Map();
-  rows.forEach((r,i)=>{const t=val(r,"title"),key=has(t)?t:"Other recordings "+(i+1);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r);});
-  box.innerHTML=groups.size?Array.from(groups.entries()).map(([name,items],i)=>{
-   const action=items.length>1?'<button type="button" class="button group-detail-action" data-group-details hidden>Show all details</button>':"";
-   return '<section class="show-group" data-group="'+i+'"><div class="group-heading"><button class="group-toggle" type="button" aria-expanded="false"><span class="group-name">'+esc(name)+'</span></button>'+action+'<span class="count-pill">'+items.length+'</span><span class="chevron">⌄</span></div><div class="record-list" hidden>'+items.map(record).join("")+'</div></section>';
-  }).join(""):'<div class="empty-state">0 audio</div>';
-  if(window.GZYLZ_CART){const selected=new Set(window.GZYLZ_CART.read().map(x=>x.id));box.querySelectorAll("[data-select-record]").forEach(cb=>cb.checked=selected.has(cb.dataset.selectRecord));window.GZYLZ_CART.update();}
- }
- function setGroup(group,open,withDetails){
-  const list=group.querySelector(".record-list"),toggle=group.querySelector(".group-toggle"),action=group.querySelector("[data-group-details]");
-  list.hidden=!open;group.classList.toggle("open",open);toggle.setAttribute("aria-expanded",String(open));
-  if(action){action.hidden=!open;action.dataset.open=String(!!withDetails);action.textContent=withDetails?"Hide all details":"Show all details";}
-  if(withDetails!==undefined)group.querySelectorAll(".record-details").forEach(d=>{d.hidden=!withDetails;const s=d.previousElementSibling;s.setAttribute("aria-expanded",String(withDetails));s.classList.toggle("open",!!withDetails);});
- }
- document.addEventListener("click",e=>{
-  const local=e.target.closest("[data-group-details]");
-  if(local){const group=local.closest(".show-group"),open=local.dataset.open!=="true";group.querySelectorAll(".record-details").forEach(d=>{d.hidden=!open;const s=d.previousElementSibling;s.setAttribute("aria-expanded",String(open));s.classList.toggle("open",open);});local.dataset.open=String(open);local.textContent=open?"Hide all details":"Show all details";e.stopPropagation();return;}
-  const allDetails=e.target.closest("[data-expand-details]");
-  if(allDetails){const open=allDetails.dataset.open!=="true";document.querySelectorAll(".show-group").forEach(g=>setGroup(g,true,open));allDetails.dataset.open=String(open);allDetails.textContent=open?"Hide all details":"Show all details";return;}
-  const expand=e.target.closest("[data-expand-all]");
-  if(expand){const open=expand.dataset.expandAll==="true";document.querySelectorAll(".show-group").forEach(g=>setGroup(g,open,undefined));expand.textContent=open?"Collapse groups":"Expand groups";expand.dataset.expandAll=String(!open);return;}
-  const groupToggle=e.target.closest(".group-toggle");
-  if(groupToggle){const g=groupToggle.closest(".show-group"),open=g.querySelector(".record-list").hidden;setGroup(g,open,undefined);return;}
-  const summary=e.target.closest(".record-summary");
-  if(summary&&!e.target.closest("input")){const d=summary.nextElementSibling,open=d.hidden;d.hidden=!open;summary.setAttribute("aria-expanded",String(open));summary.classList.toggle("open",open);}
- });
- document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches(".record-summary")){e.preventDefault();e.target.click();}});
- async function init(){
-  try{const rows=await window.GZYLZ_DATA.loadSheet("audio");render(rows);if(window.GZYLZ_CART)window.GZYLZ_CART.update();}
-  catch(err){$("#audio-groups").innerHTML='<div class="empty-state">Something went wrong…</div>';}
- }
- if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+(function () {
+    const $ = function (selector) {
+        return document.querySelector(selector);
+    };
+
+    const esc = function (value) {
+        return String(value ?? "").replace(/[&<>"']/g, function (char) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            }[char];
+        });
+    };
+
+    const val = function (record, ...names) {
+        return window.GZYLZ_DATA.get(record, ...names);
+    };
+
+    const has = function (value) {
+        return String(value ?? "").trim() !== "";
+    };
+
+    const giftClass = function (value) {
+        const text = String(value ?? "").trim().toLowerCase();
+
+        if (text.includes("never gift")) {
+            return "pill-never";
+        }
+
+        if (text.includes("limited trade")) {
+            return "pill-limited";
+        }
+
+        if (text.includes("only gift")) {
+            return "pill-only-gift";
+        }
+
+        return "";
+    };
+
+    const inline = function (value) {
+        return esc(value)
+            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+            .replace(
+                /\{\{(#[0-9a-fA-F]{3,8})\}\}([\s\S]*?)\{\{\/color\}\}/g,
+                '<span style="color:$1">$2</span>'
+            )
+            .replace(/\r\n?/g, "\n")
+            .replace(/\n/g, "<br>");
+    };
+
+    const rich = function (value) {
+        return String(value ?? "")
+            .replace(/\r\n?/g, "\n")
+            .split(/\n{2,}/)
+            .map(function (paragraph) {
+                return "<p>" + inline(paragraph) + "</p>";
+            })
+            .join("");
+    };
+
+    function pill(text, className = "") {
+        if (!has(text)) {
+            return "";
+        }
+
+        return '<span class="pill ' + className + '">' +
+            inline(text) +
+            "</span>";
+    }
+
+    function detail(label, value, className = "") {
+        if (!has(value)) {
+            return "";
+        }
+
+        return '<div class="detail-line ' + className + '">' +
+            '<span class="detail-label">' + label + ':</span>' +
+            '<div class="detail-value">' + rich(value) + "</div>" +
+            "</div>";
+    }
+
+    function record(recordData) {
+        const show = val(recordData, "show");
+        const production = val(recordData, "production");
+        const date = val(recordData, "date (yyyy-mm-dd)", "date");
+        const master = val(recordData, "master");
+        const cast = val(recordData, "cast");
+        const notes = val(recordData, "notes");
+        const myNotes = val(recordData, "my notes");
+        const type = val(recordData, "type");
+        const tracking = val(recordData, "tracked/untracked");
+        const size = val(recordData, "size");
+        const gift = val(recordData, "gift / limited trade");
+        const nft = val(recordData, "nft");
+        const concert = val(recordData, "concert or not");
+        const uncertain = val(recordData, "uncertain");
+
+        const id = recordData._id;
+        const disabled = has(nft);
+
+        const line = [show, date, master, size]
+            .filter(has)
+            .join(" | ");
+
+        const checkbox =
+            '<input class="record-check" type="checkbox"' +
+            ' aria-label="Select ' + esc(show) + '"' +
+            ' data-select-record="' + id + '"' +
+            ' data-kind="Audio"' +
+            ' data-line="' + esc(line) + '"' +
+            ' data-show="' + esc(show) + '"' +
+            ' data-date="' + esc(date) + '"' +
+            ' data-master="' + esc(master) + '"' +
+            ' data-size="' + esc(size) + '"' +
+            (disabled ? ' disabled title="NFT EXCEPT THROUGH MASTER"' : "") +
+            ">";
+
+        const summary =
+            '<div class="record-summary" role="button" tabindex="0" aria-expanded="false">' +
+            checkbox +
+            '<div class="record-summary-main">' +
+            '<span class="record-show">' +
+            inline(show || "Untitled recording") +
+            "</span>" +
+            '<span class="record-submeta">' +
+            [
+                [production, date].filter(has).map(inline).join(" • "),
+                has(master) ? inline(master) : ""
+            ].filter(has).join(" | ") +
+            "</span>" +
+            "</div>" +
+            '<span class="chevron">⌄</span>' +
+            "</div>";
+
+        const details =
+            '<div class="record-details" hidden>' +
+            detail("Cast", cast) +
+            detail("Notes", notes) +
+            detail("My Notes", myNotes, "my-notes") +
+            '<div class="record-pills">' +
+            pill(type, "pill-type") +
+            pill(size) +
+            pill(tracking, "pill-tracking") +
+            pill(gift, giftClass(gift)) +
+            pill(nft, "pill-nft") +
+            (concert === "Concert" ? pill("Concert", "pill-concert") : "") +
+            (String(uncertain).toLowerCase() === "yes"
+                ? pill("Unsure date info", "pill-uncertain")
+                : "") +
+            "</div>" +
+            "</div>";
+
+        return '<article class="record">' +
+            summary +
+            details +
+            "</article>";
+    }
+
+    function render(rows) {
+        const box = $("#audio-groups");
+        const count = $("#audio-count");
+
+        count.textContent = rows.length;
+
+        const groups = new Map();
+
+        rows.forEach(function (recordData, index) {
+            const title = val(recordData, "title");
+
+            let groupName = title;
+
+            if (!has(groupName)) {
+                groupName = "Other recordings " + (index + 1);
+            }
+
+            if (!groups.has(groupName)) {
+                groups.set(groupName, []);
+            }
+
+            groups.get(groupName).push(recordData);
+        });
+
+        if (groups.size === 0) {
+            box.innerHTML = '<div class="empty-state">0 audio</div>';
+            return;
+        }
+
+        let html = "";
+
+        Array.from(groups.entries()).forEach(function (group, index) {
+            const groupName = group[0];
+            const items = group[1];
+
+            let action = "";
+
+            if (items.length > 1) {
+                action =
+                    '<button type="button" class="button group-detail-action" data-group-details hidden>' +
+                    "Show all details" +
+                    "</button>";
+            }
+
+            html +=
+                '<section class="show-group" data-group="' + index + '">' +
+                '<div class="group-heading">' +
+                '<button class="group-toggle" type="button" aria-expanded="false">' +
+                '<span class="group-name">' + esc(groupName) + "</span>" +
+                "</button>" +
+                action +
+                '<span class="count-pill">' + items.length + "</span>" +
+                '<span class="chevron">⌄</span>' +
+                "</div>" +
+                '<div class="record-list" hidden>' +
+                items.map(record).join("") +
+                "</div>" +
+                "</section>";
+        });
+
+        box.innerHTML = html;
+
+        if (window.GZYLZ_CART) {
+            const selectedItems = window.GZYLZ_CART.read();
+            const selectedIds = new Set(
+                selectedItems.map(function (item) {
+                    return item.id;
+                })
+            );
+
+            box.querySelectorAll("[data-select-record]").forEach(function (checkbox) {
+                checkbox.checked = selectedIds.has(checkbox.dataset.selectRecord);
+            });
+
+            window.GZYLZ_CART.update();
+        }
+    }
+
+    function setGroup(group, open, withDetails) {
+        const list = group.querySelector(".record-list");
+        const toggle = group.querySelector(".group-toggle");
+        const action = group.querySelector("[data-group-details]");
+
+        list.hidden = !open;
+
+        group.classList.toggle("open", open);
+        toggle.setAttribute("aria-expanded", String(open));
+
+        if (action) {
+            action.hidden = !open;
+            action.dataset.open = String(!!withDetails);
+
+            action.textContent = withDetails
+                ? "Hide all details"
+                : "Show all details";
+        }
+
+        if (withDetails !== undefined) {
+            group.querySelectorAll(".record-details").forEach(function (details) {
+                details.hidden = !withDetails;
+
+                const summary = details.previousElementSibling;
+
+                summary.setAttribute("aria-expanded", String(withDetails));
+                summary.classList.toggle("open", !!withDetails);
+            });
+        }
+    }
+
+    document.addEventListener("click", function (event) {
+        const localButton = event.target.closest("[data-group-details]");
+
+        if (localButton) {
+            const group = localButton.closest(".show-group");
+            const open = localButton.dataset.open !== "true";
+
+            group.querySelectorAll(".record-details").forEach(function (details) {
+                details.hidden = !open;
+
+                const summary = details.previousElementSibling;
+
+                summary.setAttribute("aria-expanded", String(open));
+                summary.classList.toggle("open", open);
+            });
+
+            localButton.dataset.open = String(open);
+
+            localButton.textContent = open
+                ? "Hide all details"
+                : "Show all details";
+
+            event.stopPropagation();
+            return;
+        }
+
+        const allDetailsButton = event.target.closest("[data-expand-details]");
+
+        if (allDetailsButton) {
+            const open = allDetailsButton.dataset.open !== "true";
+
+            document.querySelectorAll(".show-group").forEach(function (group) {
+                setGroup(group, true, open);
+            });
+
+            allDetailsButton.dataset.open = String(open);
+
+            allDetailsButton.textContent = open
+                ? "Hide all details"
+                : "Show all details";
+
+            return;
+        }
+
+        const expandButton = event.target.closest("[data-expand-all]");
+
+        if (expandButton) {
+            const open = expandButton.dataset.expandAll === "true";
+
+            document.querySelectorAll(".show-group").forEach(function (group) {
+                setGroup(group, open, undefined);
+            });
+
+            expandButton.textContent = open
+                ? "Collapse groups"
+                : "Expand groups";
+
+            expandButton.dataset.expandAll = String(!open);
+
+            return;
+        }
+
+        const groupToggle = event.target.closest(".group-toggle");
+
+        if (groupToggle) {
+            const group = groupToggle.closest(".show-group");
+            const list = group.querySelector(".record-list");
+            const open = list.hidden;
+
+            setGroup(group, open, undefined);
+            return;
+        }
+
+        const summary = event.target.closest(".record-summary");
+
+        if (summary && !event.target.closest("input")) {
+            const details = summary.nextElementSibling;
+            const open = details.hidden;
+
+            details.hidden = !open;
+
+            summary.setAttribute("aria-expanded", String(open));
+            summary.classList.toggle("open", open);
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        const isSummary = event.target.matches(".record-summary");
+        const isEnter = event.key === "Enter";
+        const isSpace = event.key === " ";
+
+        if ((isEnter || isSpace) && isSummary) {
+            event.preventDefault();
+            event.target.click();
+        }
+    });
+
+    async function init() {
+        try {
+            const rows = await window.GZYLZ_DATA.loadSheet("audio");
+
+            render(rows);
+
+            if (window.GZYLZ_CART) {
+                window.GZYLZ_CART.update();
+            }
+        } catch (error) {
+            $("#audio-groups").innerHTML =
+                '<div class="empty-state">Something went wrong…</div>';
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init, { once: true });
+    } else {
+        init();
+    }
 })();
