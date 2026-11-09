@@ -26,10 +26,15 @@
   const remove=e.target.closest("[data-remove]");if(remove)write(read().filter(x=>x.id!==remove.dataset.remove));
   if(e.target.closest("[data-cart-copy]")){
    const items=read();
-   const list=["Video","Audio"].map(k=>{
+   const list=["Audio","Video"].map(k=>{
     const group=items.filter(x=>x.kind===k);
-    return group.length?"["+k+"]\n"+group.map(x=>"- "+x.line).join("\n"):"";
-   }).filter(Boolean).join("\n\n");
+    return group.length?"["+k+"]\\n"+group.map(x=>{
+     const parts=x.show!==undefined?[x.show,x.date,x.master,x.size]:String(x.line||"").split(" | ");
+     const show=parts[0]||"";
+     const details=parts.slice(1).filter(Boolean).join(" | ");
+     return "• "+show+(details?"\\n"+details:"");
+    }).join("\\n\\n"):"";
+   }).filter(Boolean).join("\\n\\n");
    const output=list;
    const status=document.getElementById("copy-status");
    if(!output){if(status)status.textContent="empty";return;}
@@ -39,7 +44,7 @@
  document.addEventListener("change",e=>{
   const cb=e.target.closest("[data-select-record]");if(!cb)return;
   const items=read(),id=cb.dataset.selectRecord;
-  if(cb.checked){if(!items.some(x=>x.id===id))items.push({id,kind:cb.dataset.kind,line:cb.dataset.line});}
+  if(cb.checked){if(!items.some(x=>x.id===id))items.push({id,kind:cb.dataset.kind,line:cb.dataset.line,show:cb.dataset.show,date:cb.dataset.date,master:cb.dataset.master,size:cb.dataset.size});}
   else{const i=items.findIndex(x=>x.id===id);if(i>=0)items.splice(i,1);}
   write(items);
  });
