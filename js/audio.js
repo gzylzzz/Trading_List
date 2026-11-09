@@ -123,7 +123,7 @@
             '<div class="record-summary">' +
             checkbox +
             '<button type="button" class="record-summary-button" aria-expanded="false">' +
-            '<div class="record-summary-main">' +
+            '<span class="record-summary-main">' +
             '<span class="record-show">' +
             inline(show || "Untitled recording") +
             "</span>" +
