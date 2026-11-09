@@ -1,5 +1,5 @@
 (function(){
-  let content={status:"",rules:"",wants:"",contact:"",home:""};
+  let content={status:"",rules:"",wants:"",contact:"",readMe:"",footer:""};
   const clean=value=>String(value??"").trim();
   const escapeHTML=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   function format(value){
@@ -26,7 +26,8 @@
         rules:collect("rules").join("\n\n"),
         wants:collect("wants").join("\n\n"),
         contact:collect("contact").join("\n\n"),
-        home:cell(first,"home")
+        readMe:cell(first,"read me")||cell(first,"home"),
+        footer:collect("footer").join("\n\n")
       };
       const status=document.getElementById("status-content");
       const rules=document.getElementById("rules-content");
@@ -42,9 +43,11 @@
         }).filter(Boolean);
         wants.innerHTML=cards.length?cards.join(""):'<div class="empty-state">No wants added yet.</div>';
       }
-      const home=document.getElementById("home-note-content");
-      if(home)home.innerHTML=format(content.home);
-      if(!content.home){const card=document.getElementById("home-note");if(card)card.hidden=true;}
+      const readMe=document.getElementById("home-note-content");
+      if(readMe)readMe.innerHTML=format(content.readMe);
+      if(!content.readMe){const card=document.getElementById("home-note");if(card)card.hidden=true;}
+      const footer=document.getElementById("site-footer");
+      if(footer)footer.innerHTML=content.footer?format(content.footer):"gzylz";
       const contact=document.getElementById("contact-content-copy");
       if(contact)contact.innerHTML=format(content.contact);
       if(window.GZYLZ_CART)window.GZYLZ_CART.update();
