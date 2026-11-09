@@ -84,21 +84,23 @@
         }
     }
 
-    document.addEventListener("click", e => {
-        if (e.target.closest("[data-cart-open]")) {
-            open();
-        }
+    document.querySelectorAll("[data-cart-open]").forEach(button => {
+        button.addEventListener("click", open);
+    });
 
+    const dialog = document.getElementById("cart-dialog");
+
+    dialog.addEventListener("click", e => {
         if (e.target.closest("[data-cart-close]")) {
-            document.getElementById("cart-dialog")?.close();
+            dialog.close();
         }
 
         if (e.target.closest("[data-cart-clear]")) {
             write([]);
 
-            const s = document.getElementById("copy-status");
+            const status = document.getElementById("copy-status");
 
-            if (s) s.textContent = "";
+            if (status) status.textContent = "";
         }
 
         const remove = e.target.closest("[data-remove]");
@@ -115,7 +117,7 @@
 
                 if (!group.length) return "";
 
-                return "[" + k + "]\n" + group.map(x => {
+                return "[" + k + "]\\n" + group.map(x => {
                     const parts = x.show !== undefined
                         ? [x.show, x.date, x.master, x.size]
                         : String(x.line || "").split(" | ");
@@ -123,9 +125,9 @@
                     const show = parts[0] || "";
                     const details = parts.slice(1).filter(Boolean).join(" | ");
 
-                    return "• " + show + (details ? "\n" + details : "");
-                }).join("\n\n");
-            }).filter(Boolean).join("\n\n");
+                    return "• " + show + (details ? "\\n" + details : "");
+                }).join("\\n\\n");
+            }).filter(Boolean).join("\\n\\n");
 
             const output = list;
             const status = document.getElementById("copy-status");
@@ -143,7 +145,9 @@
         }
     });
 
-    document.addEventListener("change", e => {
+    const recordList = document.querySelector("#home-results, #audio-groups, #video-records");
+
+    recordList.addEventListener("change", e => {
         const cb = e.target.closest("[data-select-record]");
 
         if (!cb) return;
