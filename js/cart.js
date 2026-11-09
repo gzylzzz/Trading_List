@@ -4,7 +4,7 @@
     function read() {
         try {
             return JSON.parse(localStorage.getItem(KEY) || "[]");
-        } catch {
+        } catch (error) {
             return [];
         }
     }
@@ -14,31 +14,35 @@
         update();
     }
 
-    function safe(s) {
-        return String(s || "").replace(/[&<>"']/g, c => ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;"
-        }[c]));
+    function escapeHTML(value) {
+        return String(value || "").replace(/[&<>"']/g, function (char) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            }[char];
+        });
     }
 
     function update() {
         const items = read();
 
-        document.querySelectorAll("[data-cart-count]").forEach(e => {
-            e.textContent = items.length;
+        document.querySelectorAll("[data-cart-count]").forEach(function (element) {
+            element.textContent = items.length;
         });
 
-        document.querySelectorAll("[data-floating-copy]").forEach(e => {
-            e.hidden = items.length === 0;
+        document.querySelectorAll("[data-floating-copy]").forEach(function (element) {
+            element.hidden = items.length === 0;
         });
 
-        const selected = new Set(items.map(x => x.id));
+        const selectedIds = new Set(items.map(function (item) {
+            return item.id;
+        }));
 
-        document.querySelectorAll("[data-select-record]").forEach(cb => {
-            cb.checked = selected.has(cb.dataset.selectRecord);
+        document.querySelectorAll("[data-select-record]").forEach(function (checkbox) {
+            checkbox.checked = selectedIds.has(checkbox.dataset.selectRecord);
         });
 
         const contact = document.getElementById("contact-content-copy");
@@ -51,142 +55,209 @@
 
         const box = document.getElementById("cart-content");
 
-        if (!box) return;
+        if (!box) {
+            return;
+        }
 
-        if (!items.length) {
+        if (items.length === 0) {
             box.innerHTML = '<p class="empty-state">empty</p>';
             return;
         }
 
-        box.innerHTML = ["Video", "Audio"].map(kind => {
-            const group = items.filter(x => x.kind === kind);
+        const kinds = ["Video", "Audio"];
+        let html = "";
 
-            if (!group.length) return "";
+        kinds.forEach(function (kind) {
+            const group = items.filter(function (item) {
+                return item.kind === kind;
+            });
 
-            return '<section class="cart-section"><h3>[' + kind + ']</h3>' +
-                group.map(x =>
+            if (group.length === 0) {
+                return;
+            }
+
+            html += '<section class="cart-section"><h3>[' + kind + ']</h3>';
+
+            group.forEach(function (item) {
+                html +=
                     '<div class="cart-item"><span>' +
-                    safe(x.line) +
+                    escapeHTML(item.line) +
                     '</span><button type="button" data-remove="' +
-                    safe(x.id) +
-                    '" aria-label="Remove item">Remove</button></div>'
-                ).join("") +
-                '</section>';
-        }).join("");
+                    escapeHTML(item.id) +
+                    '" aria-label="Remove item">Remove</button></div>';
+            });
+
+            html += "</section>";
+        });
+
+        box.innerHTML = html;
     }
 
-    function open() {
-        const d = document.getElementById("cart-dialog");
+    function openCart() {
+        const dialog = document.getElementById("cart-dialog");
 
-        if (d) {
+        if (dialog) {
             update();
-            d.showModal();
+            dialog.showModal();
         }
     }
 
-    document.querySelectorAll("[data-cart-open]").forEach(button => {
-        button.addEventListener("click", open);
+    document.querySelectorAll("[data-cart-open]").forEach(function (button) {
+        button.addEventListener("click", openCart);
     });
 
     const dialog = document.getElementById("cart-dialog");
 
-    dialog.addEventListener("click", e => {
-        if (e.target.closest("[data-cart-close]")) {
-            dialog.close();
-        }
-
-        if (e.target.closest("[data-cart-clear]")) {
-            write([]);
-
-            const status = document.getElementById("copy-status");
-
-            if (status) status.textContent = "";
-        }
-
-        const remove = e.target.closest("[data-remove]");
-
-        if (remove) {
-            write(read().filter(x => x.id !== remove.dataset.remove));
-        }
-
-        if (e.target.closest("[data-cart-copy]")) {
-            const items = read();
-
-            const list = ["Audio", "Video"].map(k => {
-                const group = items.filter(x => x.kind === k);
-
-                if (!group.length) return "";
-
-                return "[" + k + "]\n" + group.map(x => {
-                    const parts = x.show !== undefined
-                        ? [x.show, x.date, x.master, x.size]
-                        : String(x.line || "").split(" | ");
-
-                    const show = parts[0] || "";
-                    const details = parts.slice(1).filter(Boolean).join(" | ");
-
-                    return "• " + show + (details ? "\n" + details : "");
-                }).join("\n\n");
-            }).filter(Boolean).join("\n\n");
-
-            const output = list;
-            const status = document.getElementById("copy-status");
-
-            if (!output) {
-                if (status) status.textContent = "empty";
+    if (dialog) {
+        dialog.addEventListener("click", function (event) {
+            if (event.target.closest("[data-cart-close]")) {
+                dialog.close();
                 return;
             }
 
-            navigator.clipboard.writeText(output).then(() => {
-                if (status) status.textContent = "Copied!";
-            }).catch(() => {
-                if (status) status.textContent = "Copy is unavailable in this browser.";
-            });
-        }
-    });
+            if (event.target.closest("[data-cart-clear]")) {
+                write([]);
 
-    const recordList = document.querySelector("#home-results, #audio-groups, #video-records");
+                const status = document.getElementById("copy-status");
 
-    recordList.addEventListener("change", e => {
-        const cb = e.target.closest("[data-select-record]");
+                if (status) {
+                    status.textContent = "";
+                }
 
-        if (!cb) return;
+                return;
+            }
 
-        const items = read();
-        const id = cb.dataset.selectRecord;
+            const removeButton = event.target.closest("[data-remove]");
 
-        if (cb.checked) {
-            if (!items.some(x => x.id === id)) {
-                items.push({
-                    id,
-                    kind: cb.dataset.kind,
-                    line: cb.dataset.line,
-                    show: cb.dataset.show,
-                    date: cb.dataset.date,
-                    master: cb.dataset.master,
-                    size: cb.dataset.size
+            if (removeButton) {
+                const items = read().filter(function (item) {
+                    return item.id !== removeButton.dataset.remove;
+                });
+
+                write(items);
+                return;
+            }
+
+            if (event.target.closest("[data-cart-copy]")) {
+                const items = read();
+                const kinds = ["Audio", "Video"];
+                const sections = [];
+
+                kinds.forEach(function (kind) {
+                    const group = items.filter(function (item) {
+                        return item.kind === kind;
+                    });
+
+                    if (group.length === 0) {
+                        return;
+                    }
+
+                    const lines = group.map(function (item) {
+                        let parts;
+
+                        if (item.show !== undefined) {
+                            parts = [
+                                item.show,
+                                item.date,
+                                item.master,
+                                item.size
+                            ];
+                        } else {
+                            parts = String(item.line || "").split(" | ");
+                        }
+
+                        const show = parts[0] || "";
+                        const details = parts.slice(1).filter(Boolean).join(" | ");
+
+                        return "• " + show + (details ? "\n" + details : "");
+                    });
+
+                    sections.push("[" + kind + "]\n" + lines.join("\n\n"));
+                });
+
+                const output = sections.join("\n\n");
+                const status = document.getElementById("copy-status");
+
+                if (!output) {
+                    if (status) {
+                        status.textContent = "empty";
+                    }
+
+                    return;
+                }
+
+                navigator.clipboard.writeText(output).then(function () {
+                    if (status) {
+                        status.textContent = "Copied!";
+                    }
+                }).catch(function () {
+                    if (status) {
+                        status.textContent = "Copy is unavailable in this browser.";
+                    }
                 });
             }
-        } else {
-            const i = items.findIndex(x => x.id === id);
+        });
+    }
 
-            if (i >= 0) {
-                items.splice(i, 1);
+    const recordList = document.querySelector(
+        "#home-results, #audio-groups, #video-records"
+    );
+
+    if (recordList) {
+        recordList.addEventListener("change", function (event) {
+            const checkbox = event.target.closest("[data-select-record]");
+
+            if (!checkbox) {
+                return;
             }
-        }
 
-        write(items);
-    });
+            const items = read();
+            const id = checkbox.dataset.selectRecord;
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const selected = new Set(read().map(x => x.id));
+            if (checkbox.checked) {
+                const alreadySelected = items.some(function (item) {
+                    return item.id === id;
+                });
 
-        document.querySelectorAll("[data-select-record]").forEach(cb => {
-            cb.checked = selected.has(cb.dataset.selectRecord);
+                if (!alreadySelected) {
+                    items.push({
+                        id: id,
+                        kind: checkbox.dataset.kind,
+                        line: checkbox.dataset.line,
+                        show: checkbox.dataset.show,
+                        date: checkbox.dataset.date,
+                        master: checkbox.dataset.master,
+                        size: checkbox.dataset.size
+                    });
+                }
+            } else {
+                const index = items.findIndex(function (item) {
+                    return item.id === id;
+                });
+
+                if (index !== -1) {
+                    items.splice(index, 1);
+                }
+            }
+
+            write(items);
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const selectedIds = new Set(read().map(function (item) {
+            return item.id;
+        }));
+
+        document.querySelectorAll("[data-select-record]").forEach(function (checkbox) {
+            checkbox.checked = selectedIds.has(checkbox.dataset.selectRecord);
         });
 
         update();
     });
 
-    window.GZYLZ_CART = { read, update };
+    window.GZYLZ_CART = {
+        read: read,
+        update: update
+    };
 })();
