@@ -133,7 +133,7 @@
                 has(master) ? inline(master) : ""
             ].filter(has).join(" | ") +
             "</span>" +
-            "</div>" +
+            "</span>" +
             '<span class="chevron">⌄</span>' +
             '</button>' +
             "</div>";
