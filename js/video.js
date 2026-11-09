@@ -31,7 +31,7 @@
   if(action){action.hidden=!open;action.dataset.open=String(!!withDetails);action.textContent=withDetails?"Hide all details":"Show all details";}
   if(withDetails!==undefined)group.querySelectorAll(".record-details").forEach(d=>{d.hidden=!withDetails;const s=d.previousElementSibling;s.querySelector(".record-summary-button").setAttribute("aria-expanded",String(!withDetails?false:true));s.classList.toggle("open",!!withDetails);});
  }
- document.addEventListener("click",e=>{
+ document.querySelector(".page-main").addEventListener("click",e=>{
   const local=e.target.closest("[data-group-details]");
   if(local){const group=local.closest(".show-group"),open=local.dataset.open!=="true";group.querySelectorAll(".record-details").forEach(d=>{d.hidden=!open;const s=d.previousElementSibling;s.querySelector(".record-summary-button").setAttribute("aria-expanded",String(open));s.classList.toggle("open",open);});local.dataset.open=String(open);local.textContent=open?"Hide all details":"Show all details";e.stopPropagation();return;}
   const allDetails=e.target.closest("[data-expand-details]");
