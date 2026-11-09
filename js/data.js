@@ -1,5 +1,4 @@
 (function () {
-
   function parseCSV(csvText) {
     var rows = [];
     var row = [];
@@ -12,161 +11,96 @@
 
       if (inQuotes) {
         if (character === '"' && nextCharacter === '"') {
-          cell = cell + '"';
+          cell += '"';
           i++;
         } else if (character === '"') {
           inQuotes = false;
         } else {
-          cell = cell + character;
+          cell += character;
         }
+      } else if (character === '"') {
+        inQuotes = true;
+      } else if (character === ",") {
+        row.push(cell);
+        cell = "";
+      } else if (character === "\n") {
+        row.push(cell.replace(/\r$/, ""));
+        rows.push(row);
+        row = [];
+        cell = "";
       } else {
-        if (character === '"') {
-          inQuotes = true;
-        } else if (character === ",") {
-          row.push(cell);
-          cell = "";
-        } else if (character === "\n") {
-          cell = cell.replace(/\r$/, "");
-          row.push(cell);
-          rows.push(row);
-
-          row = [];
-          cell = "";
-        } else {
-          cell = cell + character;
-        }
+        cell += character;
       }
     }
 
     if (cell !== "" || row.length > 0) {
-      cell = cell.replace(/\r$/, "");
-      row.push(cell);
+      row.push(cell.replace(/\r$/, ""));
       rows.push(row);
     }
 
-    var newRows = [];
-
-    for (var a = 0; a < rows.length; a++) {
-      var currentRow = rows[a];
-      var hasSomething = false;
-
-      for (var b = 0; b < currentRow.length; b++) {
-        if (String(currentRow[b]).trim() !== "") {
-          hasSomething = true;
-        }
-      }
-
-      if (hasSomething) {
-        newRows.push(currentRow);
-      }
-    }
-
-    return newRows;
+    return rows.filter(function (currentRow) {
+      return currentRow.some(function (value) {
+        return String(value).trim() !== "";
+      });
+    });
   }
-
 
   function normalizeHeader(header) {
-    var name = String(header || "");
-
-    name = name.replace(/\r/g, "");
-    name = name.replace(/\n/g, " ");
-    name = name.trim();
-    name = name.toLowerCase();
-
-    return name;
+    return String(header || "")
+      .replace(/^\uFEFF/, "")
+      .replace(/\r/g, "")
+      .replace(/\n/g, " ")
+      .trim()
+      .toLowerCase();
   }
 
-
   async function loadSheet(kind) {
-    if (!window.GZYLZ_CONFIG) {
-      throw new Error("Sheet settings are missing.");
+    var response = await fetch("list.csv");
+
+    if (!response.ok) {
+      throw new Error("Could not load list.csv");
     }
 
-    var sheetLinks = window.GZYLZ_CONFIG.sheets;
-
-    if (!sheetLinks) {
-      throw new Error("Sheet links are missing.");
-    }
-
-    var link = sheetLinks[kind];
-
-    if (!link) {
-      throw new Error("Sheet not found: " + kind);
-    }
-
-    var response = await fetch(link, {
-      cache: "no-store"
-    });
-
-    if (response.ok === false) {
-      throw new Error("Google Sheets returned " + response.status);
-    }
-
-    var text = await response.text();
-    var rows = parseCSV(text);
+    var rows = parseCSV(await response.text());
 
     if (rows.length === 0) {
       return [];
     }
 
-    var firstRow = rows[0];
-    var headers = [];
-
-    for (var i = 0; i < firstRow.length; i++) {
-      var headerName = normalizeHeader(firstRow[i]);
-      headers.push(headerName);
-    }
-
+    var headers = rows[0].map(normalizeHeader);
     var recordings = [];
 
-    for (var rowNumber = 1; rowNumber < rows.length; rowNumber++) {
-      var cells = rows[rowNumber];
+    for (var i = 1; i < rows.length; i++) {
       var recording = {};
-
-      recording._id = kind + "-" + (rowNumber - 1);
+      recording._id = kind + "-" + i;
       recording._kind = kind;
 
-      for (var columnNumber = 0; columnNumber < headers.length; columnNumber++) {
-        var name = headers[columnNumber];
-        var value = "";
+      for (var j = 0; j < headers.length; j++) {
+        var name = headers[j];
+        var value = rows[i][j] || "";
 
-        if (cells[columnNumber] !== undefined) {
-          value = cells[columnNumber];
-        }
-
-        value = String(value).trim();
-
-        if (name !== "") {
-          recording[name] = value;
+        if (name) {
+          recording[name] = value.trim();
         }
       }
 
-      recordings.push(recording);
+      if (String(recording.kind || "").toLowerCase() === kind.toLowerCase()) {
+        recordings.push(recording);
+      }
     }
 
     return recordings;
   }
-
 
   function get(row) {
     if (!row) {
       return "";
     }
 
-    var names = [];
-
     for (var i = 1; i < arguments.length; i++) {
-      names.push(arguments[i]);
-    }
-
-    for (var a = 0; a < names.length; a++) {
-      var name = names[a];
+      var name = String(arguments[i]).toLowerCase().replace(/\r?\n/g, " ").trim();
 
       if (row[name] !== undefined) {
-        if (row[name] === null) {
-          return "";
-        }
-
         return row[name] || "";
       }
     }
@@ -174,11 +108,9 @@
     return "";
   }
 
-
   window.GZYLZ_DATA = {
     parseCSV: parseCSV,
     loadSheet: loadSheet,
     get: get
   };
-
 })();
