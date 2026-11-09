@@ -1,259 +1,179 @@
-/*
-  This file is responsible for reading information from Google Sheets.
-
-  The information in the sheets is published as CSV text.
-  CSV looks simple at first, but it has a few special cases:
-  - A comma can separate two columns.
-  - A comma can also appear inside a cell if that cell uses quotation marks.
-  - A cell can contain quotation marks written as two quotation marks.
-  - A cell can even contain a line break.
-
-  I am keeping the steps below separate so it is easier to follow what happens.
-*/
-
 (function () {
 
-  // ------------------------------------------------------------
-  // 1. Turn CSV text into rows and cells
-  // ------------------------------------------------------------
-
   function parseCSV(csvText) {
-    // This will contain every row after we finish reading the CSV.
-    var allRows = [];
+    var rows = [];
+    var row = [];
+    var cell = "";
+    var inQuotes = false;
 
-    // These variables describe the row and cell we are working on now.
-    var currentRow = [];
-    var currentCell = "";
+    for (var i = 0; i < csvText.length; i++) {
+      var character = csvText[i];
+      var nextCharacter = csvText[i + 1];
 
-    // When this is true, commas and line breaks belong to the cell,
-    // not to the CSV structure.
-    var insideQuotes = false;
-
-    // Read the text one character at a time.
-    for (var position = 0; position < csvText.length; position++) {
-      var currentCharacter = csvText[position];
-      var nextCharacter = csvText[position + 1];
-
-      // CASE 1: We are already inside a quoted cell.
-      if (insideQuotes === true) {
-
-        // Two quotation marks together mean that the cell contains
-        // one real quotation mark.
-        if (currentCharacter === '"' && nextCharacter === '"') {
-          currentCell = currentCell + '"';
-          position = position + 1;
+      if (inQuotes) {
+        if (character === '"' && nextCharacter === '"') {
+          cell = cell + '"';
+          i++;
+        } else if (character === '"') {
+          inQuotes = false;
+        } else {
+          cell = cell + character;
         }
+      } else {
+        if (character === '"') {
+          inQuotes = true;
+        } else if (character === ",") {
+          row.push(cell);
+          cell = "";
+        } else if (character === "\n") {
+          cell = cell.replace(/\r$/, "");
+          row.push(cell);
+          rows.push(row);
 
-        // A single quotation mark closes the quoted part of the cell.
-        else if (currentCharacter === '"') {
-          insideQuotes = false;
-        }
-
-        // Any other character is ordinary cell content.
-        else {
-          currentCell = currentCell + currentCharacter;
-        }
-      }
-
-      // CASE 2: We are not inside a quoted cell.
-      else {
-
-        // A quotation mark means that a quoted cell is starting.
-        if (currentCharacter === '"') {
-          insideQuotes = true;
-        }
-
-        // A comma ends the current cell.
-        else if (currentCharacter === ",") {
-          currentRow.push(currentCell);
-          currentCell = "";
-        }
-
-        // A line break ends the current row.
-        else if (currentCharacter === "\n") {
-          // Google Sheets normally uses line breaks that may include \r.
-          // Remove that extra character from the end of the cell.
-          currentCell = currentCell.replace(/\r$/, "");
-
-          // Save the last cell and then save the complete row.
-          currentRow.push(currentCell);
-          allRows.push(currentRow);
-
-          // Start with a fresh row and a fresh cell.
-          currentRow = [];
-          currentCell = "";
-        }
-
-        // If it is not a comma, quote, or line break, keep the character.
-        else {
-          currentCell = currentCell + currentCharacter;
+          row = [];
+          cell = "";
+        } else {
+          cell = cell + character;
         }
       }
     }
 
-    // The loop has ended. There may still be one last cell to save.
-    // This also keeps an empty last cell when a row ends with a comma.
-    if (currentCell.length > 0 || currentRow.length > 0) {
-      currentCell = currentCell.replace(/\r$/, "");
-      currentRow.push(currentCell);
-      allRows.push(currentRow);
+    if (cell !== "" || row.length > 0) {
+      cell = cell.replace(/\r$/, "");
+      row.push(cell);
+      rows.push(row);
     }
 
-    // Ignore completely empty rows. They do not contain useful sheet data.
-    var rowsWithoutEmptyLines = [];
+    var newRows = [];
 
-    for (var rowIndex = 0; rowIndex < allRows.length; rowIndex++) {
-      var rowToCheck = allRows[rowIndex];
-      var rowHasContent = false;
+    for (var a = 0; a < rows.length; a++) {
+      var currentRow = rows[a];
+      var hasSomething = false;
 
-      for (var cellIndex = 0; cellIndex < rowToCheck.length; cellIndex++) {
-        var cellText = String(rowToCheck[cellIndex]);
-
-        if (cellText.trim() !== "") {
-          rowHasContent = true;
-          break;
+      for (var b = 0; b < currentRow.length; b++) {
+        if (String(currentRow[b]).trim() !== "") {
+          hasSomething = true;
         }
       }
 
-      if (rowHasContent === true) {
-        rowsWithoutEmptyLines.push(rowToCheck);
+      if (hasSomething) {
+        newRows.push(currentRow);
       }
     }
 
-    return rowsWithoutEmptyLines;
+    return newRows;
   }
 
 
-  // ------------------------------------------------------------
-  // 2. Make column names easier to use
-  // ------------------------------------------------------------
+  function normalizeHeader(header) {
+    var name = String(header || "");
 
-  function normalizeHeader(headerText) {
-    var cleanedHeader = String(headerText || "");
+    name = name.replace(/\r/g, "");
+    name = name.replace(/\n/g, " ");
+    name = name.trim();
+    name = name.toLowerCase();
 
-    // A heading might accidentally contain a line break.
-    cleanedHeader = cleanedHeader.replace(/\r/g, "");
-    cleanedHeader = cleanedHeader.replace(/\n/g, " ");
-
-    // Remove spaces at the beginning and end, then use lowercase.
-    cleanedHeader = cleanedHeader.trim();
-    cleanedHeader = cleanedHeader.toLowerCase();
-
-    return cleanedHeader;
+    return name;
   }
 
 
-  // ------------------------------------------------------------
-  // 3. Read one of the Google Sheets
-  // ------------------------------------------------------------
-
-  async function loadSheet(sheetName) {
-    // First, check whether the settings and the requested sheet exist.
-    if (!window.GZYLZ_CONFIG || !window.GZYLZ_CONFIG.sheets) {
-      throw new Error("The Google Sheets settings could not be found.");
+  async function loadSheet(kind) {
+    if (!window.GZYLZ_CONFIG) {
+      throw new Error("Sheet settings are missing.");
     }
 
-    var sheetURL = window.GZYLZ_CONFIG.sheets[sheetName];
+    var sheetLinks = window.GZYLZ_CONFIG.sheets;
 
-    if (!sheetURL) {
-      throw new Error("There is no Google Sheets link for: " + sheetName);
+    if (!sheetLinks) {
+      throw new Error("Sheet links are missing.");
     }
 
-    // Ask Google Sheets for the latest published CSV text.
-    var response = await fetch(sheetURL, {
+    var link = sheetLinks[kind];
+
+    if (!link) {
+      throw new Error("Sheet not found: " + kind);
+    }
+
+    var response = await fetch(link, {
       cache: "no-store"
     });
 
-    // A response that is not OK usually means that the link or request failed.
-    if (!response.ok) {
+    if (response.ok === false) {
       throw new Error("Google Sheets returned " + response.status);
     }
 
-    // Read the response as text, then turn that text into rows.
-    var csvText = await response.text();
-    var allRows = parseCSV(csvText);
+    var text = await response.text();
+    var rows = parseCSV(text);
 
-    // An empty sheet does not have a heading row or any recording rows.
-    if (allRows.length === 0) {
+    if (rows.length === 0) {
       return [];
     }
 
-    // The first row contains the column names.
-    var headerRow = allRows[0];
-    var headerNames = [];
+    var firstRow = rows[0];
+    var headers = [];
 
-    for (var headerIndex = 0; headerIndex < headerRow.length; headerIndex++) {
-      var oneHeader = normalizeHeader(headerRow[headerIndex]);
-      headerNames.push(oneHeader);
+    for (var i = 0; i < firstRow.length; i++) {
+      var headerName = normalizeHeader(firstRow[i]);
+      headers.push(headerName);
     }
 
-    // All rows after the first row contain the actual information.
-    var dataRows = [];
+    var recordings = [];
 
-    for (var dataIndex = 1; dataIndex < allRows.length; dataIndex++) {
-      var cellsInThisRow = allRows[dataIndex];
+    for (var rowNumber = 1; rowNumber < rows.length; rowNumber++) {
+      var cells = rows[rowNumber];
+      var recording = {};
 
-      // Keep an ID and a type for each row. Other scripts use these values.
-      var rowObject = {};
-      rowObject._id = sheetName + "-" + (dataIndex - 1);
-      rowObject._kind = sheetName;
+      recording._id = kind + "-" + (rowNumber - 1);
+      recording._kind = kind;
 
-      // Match each cell with the heading in the same column.
-      for (var columnIndex = 0; columnIndex < headerNames.length; columnIndex++) {
-        var columnName = headerNames[columnIndex];
-        var cellValue = "";
+      for (var columnNumber = 0; columnNumber < headers.length; columnNumber++) {
+        var name = headers[columnNumber];
+        var value = "";
 
-        // Some rows may have fewer cells than the heading row.
-        // In that case, leave the missing value as an empty string.
-        if (cellsInThisRow[columnIndex] !== undefined) {
-          cellValue = String(cellsInThisRow[columnIndex]);
+        if (cells[columnNumber] !== undefined) {
+          value = cells[columnNumber];
         }
 
-        // Remove spaces around the value before saving it.
-        cellValue = cellValue.trim();
+        value = String(value).trim();
 
-        // Save this value under its column name.
-        if (columnName !== "") {
-          rowObject[columnName] = cellValue;
+        if (name !== "") {
+          recording[name] = value;
         }
       }
 
-      dataRows.push(rowObject);
+      recordings.push(recording);
     }
 
-    return dataRows;
+    return recordings;
   }
 
 
-  // ------------------------------------------------------------
-  // 4. Get a value from a row
-  // ------------------------------------------------------------
-
-  function get(row, ...possibleNames) {
-    // If there is no row, there is nothing to look up.
+  function get(row) {
     if (!row) {
       return "";
     }
 
-    // Some sheet headings have more than one possible name.
-    // Check those names in the order provided by the calling script.
-    for (var nameIndex = 0; nameIndex < possibleNames.length; nameIndex++) {
-      var columnName = possibleNames[nameIndex];
+    var names = [];
 
-      if (row[columnName] !== undefined) {
-        // Keep the existing behaviour: a blank value is returned as blank.
-        return row[columnName] || "";
+    for (var i = 1; i < arguments.length; i++) {
+      names.push(arguments[i]);
+    }
+
+    for (var a = 0; a < names.length; a++) {
+      var name = names[a];
+
+      if (row[name] !== undefined) {
+        if (row[name] === null) {
+          return "";
+        }
+
+        return row[name] || "";
       }
     }
 
-    // None of the requested column names existed in this row.
     return "";
   }
 
-
-  // ------------------------------------------------------------
-  // 5. Make these functions available to the other website scripts
-  // ------------------------------------------------------------
 
   window.GZYLZ_DATA = {
     parseCSV: parseCSV,
