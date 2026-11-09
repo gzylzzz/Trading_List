@@ -54,11 +54,6 @@
     }catch(error){console.error("Unable to load text sheet:",error);}
     return content;
   }
-  document.addEventListener("click",e=>{
-    const b=e.target.closest(".home-note-toggle");if(!b)return;
-    const card=b.closest(".home-note"),collapsed=card.classList.toggle("is-collapsed");
-    b.setAttribute("aria-expanded",String(!collapsed));
-  });
   window.GZYLZ_TEXT={load,getContact:()=>content.contact,getContactHTML:()=>format(content.contact)};
   document.addEventListener("DOMContentLoaded",load);
 })();
