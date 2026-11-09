@@ -33,13 +33,12 @@
  .group-heading .count-pill{font-size:10px;padding:3px 7px}
 }
 
-/* On phones, keep the Home note floating so it never pushes the search down */
 @media(max-width:620px){
  .home-note{position:fixed;right:12px;bottom:12px;z-index:30;width:min(190px,calc(100vw - 24px));box-shadow:0 5px 24px #29251f1a}
  .home-note:not(.is-collapsed){width:min(330px,calc(100vw - 24px));max-height:48vh;overflow:auto}
 }
 
-/* READ ME card stays beside Welcome on phones and is more prominent */
+
 @media(max-width:620px){
  .home-top-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:12px;align-items:start}
  .home-note{position:static;right:auto;bottom:auto;z-index:auto;width:auto;max-width:none;padding:14px 13px;box-shadow:none}
@@ -48,7 +47,6 @@
  .home-note-content{font-size:12px;line-height:1.65}
 }
 
-/* Fixed-size READ ME panel with its own scroll area */
 .home-note{height:260px;max-height:260px;display:flex;flex-direction:column;overflow:hidden}
 .home-note-toggle{flex:none}
 .home-note-content{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding-right:7px}
@@ -59,7 +57,7 @@
  .home-note{height:205px;max-height:205px;min-width:0}
  .home-note-content{font-size:11px;padding-right:5px}
 }
-/* Recording summary: title first, production/date/master next */
+
 .record-summary-main{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
 .record-show{font-size:14px;line-height:1.45;color:var(--ink)}
 .record-submeta{font-size:12px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
@@ -71,28 +69,25 @@
 .wants-card-content{font-size:14px;line-height:1.75}
 @media(max-width:620px){.wants-card{padding:17px}.wants-card h2{font-size:20px}}
 
-/* Ensure expanded READ ME uses a bounded card and scrolls internally */
 .home-note:not(.is-collapsed){height:260px;max-height:260px;overflow:hidden}
 @media(max-width:620px){
  .home-note:not(.is-collapsed){height:205px;max-height:205px;overflow:hidden}
 }
 
-/* Number of individual recordings matching the Home search */
 .search-result-count{margin:10px 0 0;color:var(--muted);font-size:12px;font-weight:600;min-height:18px}
 
-/* Persistent floating Copy shortcut: appears when at least one recording is selected */
+
 .floating-copy{position:fixed;right:24px;bottom:24px;z-index:80;display:inline-flex;align-items:center;gap:9px;border:1px solid var(--ink);border-radius:999px;padding:12px 19px;background:var(--ink);color:#fffefa;font:600 13px "DM Sans",sans-serif;box-shadow:0 5px 22px #29251f30;cursor:pointer;transition:transform .15s,box-shadow .15s}
 .floating-copy:hover{transform:translateY(-2px);box-shadow:0 8px 26px #29251f3b}
 .floating-copy span{display:inline-grid;place-items:center;min-width:21px;height:21px;padding:0 6px;border-radius:99px;background:#fffefa;color:var(--ink);font-size:11px}
 .floating-copy[hidden]{display:none!important}
 @media(max-width:620px){.floating-copy{right:15px;bottom:16px;padding:11px 16px;font-size:12px}}
 
-/* Keep the Home browse tiles closer to the search controls when no results are shown. */
 .search-result-count:empty{display:none}
 .search-results:empty{display:none}
 .browse-grid{margin-top:28px}
 
-/* Consistent colours for gift / trade restrictions across Audio, Video and Home. */
+
 .pill-never{background:#f7e3e3!important;color:#a34f55!important}
 .pill-limited{background:#f7efcf!important;color:#8a6b20!important}
 .pill-only-gift{background:#e2eee3!important;color:#527b58!important}
