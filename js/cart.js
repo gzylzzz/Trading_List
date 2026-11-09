@@ -32,7 +32,7 @@
    }).filter(Boolean).join("\n\n");
    const output=list;
    const status=document.getElementById("copy-status");
-   if(!output){if(status)status.textContent="Your selection is empty.";return;}
+   if(!output){if(status)status.textContent="empty";return;}
    navigator.clipboard.writeText(output).then(()=>{if(status)status.textContent="Copied!";}).catch(()=>{if(status)status.textContent="Copy is unavailable in this browser.";});
   }
  });
