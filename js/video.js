@@ -11,7 +11,7 @@
  function record(r){
   const show=val(r,"show"),prod=val(r,"production"),date=val(r,"date"),master=val(r,"master"),cast=val(r,"cast"),notes=val(r,"notes"),type=val(r,"file type"),size=val(r,"size"),gift=val(r,"gift/limited trade","gift / limited trade"),nft=val(r,"nft"),highlights=val(r,"highlights"),concert=val(r,"concert or not"),subs=val(r,"subtitles"),language=val(r,"language");
   const id=r._id,disabled=has(nft),line=[show,date,master,size].filter(has).join(" | ");
-  return '<article class="record"><div class="record-summary" role="button" tabindex="0" aria-expanded="false"><input class="record-check" type="checkbox" aria-label="Select '+esc(show)+'" data-select-record="'+id+'" data-kind="Video" data-line="'+esc(line)+'" '+(disabled?'disabled title="NFT — unavailable for selection"':'')+'><div class="record-summary-main"><span class="record-show">'+inline(show||"Untitled recording")+'</span><span class="record-submeta">'+[ [prod,date].filter(has).map(inline).join(" • "), has(master)?inline(master):"" ].filter(has).join(" | ")+'</span></div><span class="chevron">⌄</span></div><div class="record-details" hidden>'+
+  return '<article class="record"><div class="record-summary" role="button" tabindex="0" aria-expanded="false"><input class="record-check" type="checkbox" aria-label="Select '+esc(show)+'" data-select-record="'+id+'" data-kind="Video" data-line="'+esc(line)+'" '+(disabled?'disabled title="NFT EXCEPT THROUGH MASTER"':'')+'><div class="record-summary-main"><span class="record-show">'+inline(show||"Untitled recording")+'</span><span class="record-submeta">'+[ [prod,date].filter(has).map(inline).join(" • "), has(master)?inline(master):"" ].filter(has).join(" | ")+'</span></div><span class="chevron">⌄</span></div><div class="record-details" hidden>'+
   detail("Cast",cast)+detail("Notes",notes)+detail("Highlights",highlights)+detail("Language",language)+detail("Subtitles",subs)+
   '<div class="record-pills">'+pill(type,"pill-type")+pill(size)+pill(gift,giftClass(gift))+pill(nft,"pill-nft")+(concert==="Concert"?pill("Concert","pill-concert"):"")+'</div></div></article>';
  }
@@ -22,7 +22,7 @@
   box.innerHTML=groups.size?Array.from(groups.entries()).map(([name,items],i)=>{
    const action=items.length>1?'<button type="button" class="button group-detail-action" data-group-details hidden>Show all details</button>':"";
    return '<section class="show-group" data-group="'+i+'"><div class="group-heading"><button class="group-toggle" type="button" aria-expanded="false"><span class="group-name">'+esc(name)+'</span></button>'+action+'<span class="count-pill">'+items.length+'</span><span class="chevron">⌄</span></div><div class="record-list" hidden>'+items.map(record).join("")+'</div></section>';
-  }).join(""):'<div class="empty-state">No video recordings found.</div>';
+  }).join(""):'<div class="empty-state">0 video</div>';
   if(window.GZYLZ_CART){const selected=new Set(window.GZYLZ_CART.read().map(x=>x.id));box.querySelectorAll("[data-select-record]").forEach(cb=>cb.checked=selected.has(cb.dataset.selectRecord));window.GZYLZ_CART.update();}
  }
  function setGroup(group,open,withDetails){
@@ -46,7 +46,7 @@
  document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches(".record-summary")){e.preventDefault();e.target.click();}});
  async function init(){
   try{const rows=await window.GZYLZ_DATA.loadSheet("video");render(rows);if(window.GZYLZ_CART)window.GZYLZ_CART.update();}
-  catch(err){$("#video-records").innerHTML='<div class="empty-state">Unable to load the Google Sheet right now. Please refresh and try again.<br><small>'+esc(err.message)+'</small></div>';}
+  catch(err){$("#video-records").innerHTML='<div class="empty-state">Something went wrong…</div>';}
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
