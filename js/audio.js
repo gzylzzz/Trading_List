@@ -23,6 +23,10 @@
         return String(value ?? "").trim() !== "";
     };
 
+    const isTrue = function (value) {
+        return String(value ?? "").trim().toLowerCase() === "true";
+    };
+
     const giftClass = function (value) {
         const text = String(value ?? "").trim().toLowerCase();
 
@@ -94,13 +98,15 @@
         const type = val(recordData, "type");
         const tracking = val(recordData, "tracked/untracked");
         const size = val(recordData, "size");
-        const gift = val(recordData, "gift / limited trade");
-        const nft = val(recordData, "nft");
-        const concert = val(recordData, "concert or not");
+        const neverGift = val(recordData, "never gift");
+        const nft = val(recordData, "nft except through master");
+        const concert = val(recordData, "concert");
         const uncertain = val(recordData, "uncertain");
+        const limitedTrade = val(recordData, "limited trade 2:1");
+        const onlyGift = val(recordData, "only gift");
 
         const id = recordData._id;
-        const disabled = has(nft);
+        const disabled = isTrue(nft);
 
         const line = [show, date, master, size]
             .filter(has)
@@ -147,12 +153,12 @@
             pill(type, "pill-type") +
             pill(size) +
             pill(tracking, "pill-tracking") +
-            pill(gift, giftClass(gift)) +
-            pill(nft, "pill-nft") +
-            (concert === "Concert" ? pill("Concert", "pill-concert") : "") +
-            (String(uncertain).toLowerCase() === "yes"
-                ? pill("Unsure date info", "pill-uncertain")
-                : "") +
+            (isTrue(neverGift) ? pill("Never Gift", "pill-never") : "") +
+            (isTrue(limitedTrade) ? pill("Limited trade 2:1", "pill-limited") : "") +
+            (isTrue(onlyGift) ? pill("Only Gift", "pill-only-gift") : "") +
+            (isTrue(nft) ? pill("NFT except through master", "pill-nft") : "") +
+            (isTrue(concert) ? pill("Concert", "pill-concert") : "") +
+            (isTrue(uncertain) ? pill("Unsure date info", "pill-uncertain") : "") +
             "</div>" +
             "</div>";
 
