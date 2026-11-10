@@ -155,11 +155,6 @@
                 escapeHTML(language) + "</div>";
         }
 
-        if (has(subtitles)) {
-            html += '<div class="detail-line"><span class="detail-label">Subtitles:</span> ' +
-                escapeHTML(subtitles) + "</div>";
-        }
-
         html +=
             '<div class="record-pills">' +
             pill(type, "pill-type") +
@@ -170,6 +165,7 @@
             (isTrue(limitedTrade3) ? pill("Limited trade 3:1", "pill-limited") : "") +
             (isTrue(onlyGift) ? pill("Only Gift", "pill-only-gift") : "") +
             (isTrue(nft) ? pill("NFT except through master", "pill-nft") : "") +
+            (isTrue(subtitles) ? pill("Includes subtitles") : "") +
             "</div>" +
             "</div>" +
             "</article>";
