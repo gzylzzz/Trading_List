@@ -19,11 +19,11 @@
     <header class="site-header">
         <a class="brand" href="index.html">gzylz trades</a>
 
-        <nav aria-label="Main navigation">
+        <nav>
             <a href="index.html">Home</a>
             <a class="active" href="audio.html">Audio</a>
             <a href="video.html">Video</a>
-            <a href="rules-contact.html">Rules</a>
+            <a href="rules.html">Rules</a>
         </nav>
 
         <button class="cart-trigger" type="button" data-cart-open>
@@ -55,11 +55,9 @@
 
     <dialog class="cart-dialog" id="cart-dialog">
         <div class="dialog-head">
-            <div>
-                <p class="eyebrow">YOUR SELECTION</p>
-            </div>
+            <h3>YOUR SELECTION</h3>
 
-            <button class="icon-button" type="button" data-cart-close aria-label="Close">×</button>
+            <button class="icon-button" type="button" data-cart-close>×</button>
         </div>
 
         <div id="cart-content"></div>
@@ -74,7 +72,7 @@
             <button class="button button-primary" type="button" data-cart-copy>Copy your selection</button>
         </div>
 
-        <p class="copy-status" id="copy-status" aria-live="polite"></p>
+        <p class="copy-status" id="copy-status"></p>
     </dialog>
 
     <footer id="site-footer"></footer>
