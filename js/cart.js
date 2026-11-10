@@ -84,7 +84,7 @@
                     escapeHTML(item.line) +
                     '</span><button type="button" data-remove="' +
                     escapeHTML(item.id) +
-                    '" aria-label="Remove item">Remove</button></div>';
+                    '">Remove</button></div>';
             });
 
             html += "</section>";
