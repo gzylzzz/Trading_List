@@ -23,6 +23,10 @@
         return String(value ?? "").trim() !== "";
     }
 
+    function isTrue(value) {
+        return String(value ?? "").trim().toLowerCase() === "true";
+    }
+
     function giftClass(value) {
         const text = String(value ?? "").trim().toLowerCase();
 
@@ -92,15 +96,18 @@
         const notes = val(recordData, "notes");
         const type = val(recordData, "file type");
         const size = val(recordData, "size");
-        const gift = val(recordData, "gift/limited trade", "gift / limited trade");
-        const nft = val(recordData, "nft");
+        const neverGift = val(recordData, "never gift");
+        const nft = val(recordData, "nft except through master");
         const highlights = val(recordData, "highlights");
-        const concert = val(recordData, "concert or not");
-        const subtitles = val(recordData, "subtitles");
+        const concert = val(recordData, "concert");
+        const subtitles = val(recordData, "includes subtitles");
         const language = val(recordData, "language");
+        const limitedTrade = val(recordData, "limited trade 2:1");
+        const limitedTrade3 = val(recordData, "limited trade 3:1");
+        const onlyGift = val(recordData, "only gift");
 
         const id = recordData._id;
-        const disabled = has(nft);
+        const disabled = isTrue(nft);
         const line = [show, date, master, size].filter(has).join(" | ");
 
         let html =
@@ -142,9 +149,12 @@
             '<div class="record-pills">' +
             pill(type, "pill-type") +
             pill(size) +
-            pill(gift, giftClass(gift)) +
-            pill(nft, "pill-nft") +
-            (concert === "Concert" ? pill("Concert", "pill-concert") : "") +
+            (isTrue(neverGift) ? pill("Never Gift", "pill-never") : "") +
+            (isTrue(limitedTrade) ? pill("Limited trade 2:1", "pill-limited") : "") +
+            (isTrue(limitedTrade3) ? pill("Limited trade 3:1", "pill-limited") : "") +
+            (isTrue(onlyGift) ? pill("Only Gift", "pill-only-gift") : "") +
+            (isTrue(nft) ? pill("NFT except through master", "pill-nft") : "") +
+            (isTrue(concert) ? pill("Concert", "pill-concert") : "") +
             "</div>" +
             "</div>" +
             "</article>";
