@@ -230,8 +230,8 @@
 
         box.innerHTML = html;
 
-        if (window.GZYLZ_CART) {
-            const selectedItems = window.GZYLZ_CART.read();
+        {
+            const selectedItems = window.CART.read();
             const selectedIds = new Set(
                 selectedItems.map(function (item) {
                     return item.id;
@@ -242,7 +242,7 @@
                 checkbox.checked = selectedIds.has(checkbox.dataset.selectRecord);
             });
 
-            window.GZYLZ_CART.update();
+            window.CART.update();
         }
     }
 
@@ -365,8 +365,8 @@
 
             render(rows);
 
-            if (window.GZYLZ_CART) {
-                window.GZYLZ_CART.update();
+            if (window.CART) {
+                window.CART.update();
             }
         } catch (error) {
             $("#audio-groups").innerHTML =
