@@ -27,6 +27,10 @@
         return String(value ?? "").trim() !== "";
     }
 
+    function isTrue(value) {
+        return String(value ?? "").trim().toLowerCase() === "true";
+    }
+
     function pill(value, className = "") {
         if (!has(value)) {
             return "";
@@ -64,20 +68,23 @@
         const cast = get(recordData, "cast");
         const notes = get(recordData, "notes");
         const myNotes = get(recordData, "my notes");
-        const nft = get(recordData, "nft");
+        const neverGift = get(recordData, "never gift");
+        const nft = get(recordData, "nft except through master");
         const type = get(recordData, "type", "file type");
         const size = get(recordData, "size");
         const tracking = get(recordData, "tracked/untracked");
-        const gift = get(recordData, "gift / limited trade", "gift/limited trade");
-        const concert = get(recordData, "concert or not");
+        const concert = get(recordData, "concert");
         const uncertain = get(recordData, "uncertain");
+        const limitedTrade = get(recordData, "limited trade 2:1");
+        const limitedTrade3 = get(recordData, "limited trade 3:1");
+        const onlyGift = get(recordData, "only gift");
         const highlights = get(recordData, "highlights");
         const language = get(recordData, "language");
-        const subtitles = get(recordData, "subtitles");
+        const subtitles = get(recordData, "includes subtitles");
 
         const id = recordData._id;
         const line = [show, date, master, size].filter(has).join(" | ");
-        const disabled = has(nft);
+        const disabled = isTrue(nft);
         const kindName = kind === "audio" ? "Audio" : "Video";
 
         let html =
@@ -107,14 +114,14 @@
             '<div class="record-details" hidden>';
 
         html += '<div class="detail-line"><strong>' + escapeHTML(show) + "</strong> ";
-        html += pill(concert === "Concert" ? "Concert" : "");
+        html += pill(isTrue(concert) ? "Concert" : "");
         html += "</div>";
 
         if (has(production) || has(date)) {
             html += '<div class="detail-line"><strong>' +
                 escapeHTML([production, date].filter(has).join(" | ")) +
                 "</strong> " +
-                pill(uncertain.toLowerCase() === "yes" ? "Unsure date info" : "") +
+                pill(isTrue(uncertain) ? "Unsure date info" : "") +
                 "</div>";
         }
 
@@ -158,8 +165,11 @@
             pill(type, "pill-type") +
             pill(size) +
             pill(tracking, "pill-tracking") +
-            pill(gift, giftClass(gift)) +
-            pill(nft, "pill-nft") +
+            (isTrue(neverGift) ? pill("Never Gift", "pill-never") : "") +
+            (isTrue(limitedTrade) ? pill("Limited trade 2:1", "pill-limited") : "") +
+            (isTrue(limitedTrade3) ? pill("Limited trade 3:1", "pill-limited") : "") +
+            (isTrue(onlyGift) ? pill("Only Gift", "pill-only-gift") : "") +
+            (isTrue(nft) ? pill("NFT except through master", "pill-nft") : "") +
             "</div>" +
             "</div>" +
             "</article>";
