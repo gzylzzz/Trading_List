@@ -24,14 +24,19 @@
         });
     }
 
-    function format(value) {
-        return escapeHTML(value)
+    function format(value, keepLineBreaks) {
+        let result = escapeHTML(value)
             .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
             .replace(
                 /\{\{(#[0-9a-fA-F]{3,8})\}\}([\s\S]*?)\{\{\/color\}\}/g,
                 '<span style="color:$1">$2</span>'
-            )
-            .replace(/\r?\n/g, "<br>");
+            );
+
+        if (keepLineBreaks !== false) {
+            result = result.replace(/\r?\n/g, "<br>");
+        }
+
+        return result;
     }
 
     function cell(row, key) {
@@ -103,7 +108,7 @@
                 status: collect("statues", "status").join("\n\n"),
                 rules: collect("rules").join("\n\n"),
                 wants: collect("wants").join("\n\n"),
-                contact: collect("contact").join("\n\n"),
+                contact: collect("contact").join("\n"),
                 readMe: cell(first, "read me") || cell(first, "home"),
                 footer: collect("footer").join("\n\n")
             };
@@ -177,7 +182,7 @@
             const contact = document.getElementById("contact-content-copy");
 
             if (contact) {
-                contact.innerHTML = format(content.contact);
+                contact.innerHTML = format(content.contact, false);
             }
 
             if (window.GZYLZ_CART) {
@@ -193,7 +198,7 @@
     window.GZYLZ_TEXT = {
         load: load,
         getContactHTML: function () {
-            return format(content.contact);
+            return format(content.contact, false);
         }
     };
 
