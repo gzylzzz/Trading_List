@@ -117,56 +117,56 @@
         }
 
         if (event.target.closest("[data-cart-copy]")) {
-                const items = read();
-                const kinds = ["Audio", "Video"];
-                const sections = [];
+            const items = read();
+            const kinds = ["Audio", "Video"];
+            const sections = [];
 
-                kinds.forEach(function (kind) {
-                    const group = items.filter(function (item) {
-                        return item.kind === kind;
-                    });
-
-                    if (group.length === 0) {
-                        return;
-                    }
-
-                    const lines = group.map(function (item) {
-                        let parts;
-
-                        if (item.show !== undefined) {
-                            parts = [
-                                item.show,
-                                item.date,
-                                item.master,
-                                item.size
-                            ];
-                        } else {
-                            parts = String(item.line || "").split(" | ");
-                        }
-
-                        const show = parts[0] || "";
-                        const details = parts.slice(1).filter(Boolean).join(" | ");
-
-                        return "• " + show + (details ? "\n" + details : "");
-                    });
-
-                    sections.push("[" + kind + "]\n" + lines.join("\n\n"));
+            kinds.forEach(function (kind) {
+                const group = items.filter(function (item) {
+                    return item.kind === kind;
                 });
 
-                const output = sections.join("\n\n");
-                const status = document.getElementById("copy-status");
-
-                if (!output) {
-                    status.textContent = "empty";
+                if (group.length === 0) {
                     return;
                 }
 
-                navigator.clipboard.writeText(output).then(function () {
-                    status.textContent = "Copied!";
-                }).catch(function () {
-                    status.textContent = "Copy is unavailable in this browser.";
+                const lines = group.map(function (item) {
+                    let parts;
+
+                    if (item.show !== undefined) {
+                        parts = [
+                            item.show,
+                            item.date,
+                            item.master,
+                            item.size
+                        ];
+                    } else {
+                        parts = String(item.line || "").split(" | ");
+                    }
+
+                    const show = parts[0] || "";
+                    const details = parts.slice(1).filter(Boolean).join(" | ");
+
+                    return "• " + show + (details ? "\\n" + details : "");
                 });
+
+                sections.push("[" + kind + "]\\n" + lines.join("\\n\\n"));
+            });
+
+            const output = sections.join("\\n\\n");
+            const status = document.getElementById("copy-status");
+
+            if (!output) {
+                status.textContent = "empty";
+                return;
             }
+
+            navigator.clipboard.writeText(output).then(function () {
+                status.textContent = "Copied!";
+            }).catch(function () {
+                status.textContent = "Copy is unavailable in this browser.";
+            });
+        }
     });
 
     const recordList = document.querySelector(
@@ -174,36 +174,36 @@
     );
 
     recordList.addEventListener("change", function (event) {
-            const checkbox = event.target.closest("[data-select-record]");
+        const checkbox = event.target.closest("[data-select-record]");
 
-            if (!checkbox) {
-                return;
+        if (!checkbox) {
+            return;
+        }
+
+        const items = read();
+        const id = checkbox.dataset.selectRecord;
+
+        if (checkbox.checked) {
+            items.push({
+                id: id,
+                kind: checkbox.dataset.kind,
+                line: checkbox.dataset.line,
+                show: checkbox.dataset.show,
+                date: checkbox.dataset.date,
+                master: checkbox.dataset.master,
+                size: checkbox.dataset.size
+            });
+        } else {
+            const index = items.findIndex(function (item) {
+                return item.id === id;
+            });
+
+            if (index !== -1) {
+                items.splice(index, 1);
             }
+        }
 
-            const items = read();
-            const id = checkbox.dataset.selectRecord;
-
-            if (checkbox.checked) {
-                items.push({
-                    id: id,
-                    kind: checkbox.dataset.kind,
-                    line: checkbox.dataset.line,
-                    show: checkbox.dataset.show,
-                    date: checkbox.dataset.date,
-                    master: checkbox.dataset.master,
-                    size: checkbox.dataset.size
-                });
-            } else {
-                const index = items.findIndex(function (item) {
-                    return item.id === id;
-                });
-
-                if (index !== -1) {
-                    items.splice(index, 1);
-                }
-            }
-
-            write(items);
+        write(items);
     });
 
     document.addEventListener("DOMContentLoaded", update);
