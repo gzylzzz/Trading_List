@@ -185,8 +185,8 @@
                 contact.innerHTML = format(content.contact, false);
             }
 
-            if (window.GZYLZ_CART) {
-                window.GZYLZ_CART.update();
+            if (window.CART) {
+                window.CART.update();
             }
         } catch (error) {
             console.error("Unable to load text file:", error);
