@@ -1,44 +1,10 @@
 (function () {
   function parseCSV(csvText) {
-    var rows = [];
-    var row = [];
-    var cell = "";
-    var inQuotes = false;
+    var result = Papa.parse(csvText, {
+      skipEmptyLines: true
+    });
 
-    for (var i = 0; i < csvText.length; i++) {
-      var character = csvText[i];
-      var nextCharacter = csvText[i + 1];
-
-      if (inQuotes) {
-        if (character === '"' && nextCharacter === '"') {
-          cell += '"';
-          i++;
-        } else if (character === '"') {
-          inQuotes = false;
-        } else {
-          cell += character;
-        }
-      } else if (character === '"') {
-        inQuotes = true;
-      } else if (character === ",") {
-        row.push(cell);
-        cell = "";
-      } else if (character === "\n") {
-        row.push(cell.replace(/\r$/, ""));
-        rows.push(row);
-        row = [];
-        cell = "";
-      } else {
-        cell += character;
-      }
-    }
-
-    if (cell !== "" || row.length > 0) {
-      row.push(cell.replace(/\r$/, ""));
-      rows.push(row);
-    }
-
-    return rows.filter(function (currentRow) {
+    return result.data.filter(function (currentRow) {
       return currentRow.some(function (value) {
         return String(value).trim() !== "";
       });
