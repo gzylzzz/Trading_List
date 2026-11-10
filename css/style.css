@@ -101,14 +101,6 @@ a {
   padding: 66px 26px 90px;
 }
 
-.eyebrow {
-  margin: 0 0 12px;
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: .17em;
-  font-weight: 700;
-}
-
 .home-main h1 {
   font: 500 clamp(34px, 6vw, 53px)/1.15 'Playfair Display', serif;
   margin: 0 0 14px;
