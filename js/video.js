@@ -143,7 +143,7 @@
         html += detail("Notes", notes);
         html += detail("Highlights", highlights);
         html += detail("Language", language);
-        html += detail("Subtitles", subtitles);
+
 
         html +=
             '<div class="record-pills">' +
@@ -155,6 +155,7 @@
             (isTrue(onlyGift) ? pill("Only Gift", "pill-only-gift") : "") +
             (isTrue(nft) ? pill("NFT except through master", "pill-nft") : "") +
             (isTrue(concert) ? pill("Concert", "pill-concert") : "") +
+            (isTrue(subtitles) ? pill("Includes subtitles") : "") +
             "</div>" +
             "</div>" +
             "</article>";
