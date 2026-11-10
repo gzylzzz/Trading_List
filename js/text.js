@@ -202,5 +202,5 @@
         }
     };
 
-    document.addEventListener("DOMContentLoaded", load);
+    load();
 })();
