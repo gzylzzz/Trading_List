@@ -279,9 +279,7 @@
             output.innerHTML = '<div class="empty-state">No matching recordings.</div>';
         }
 
-        const selectedItems = window.GZYLZ_CART
-            ? window.GZYLZ_CART.read()
-            : [];
+        const selectedItems = window.CART.read();
 
         const selectedIds = new Set(selectedItems.map(function (item) {
             return item.id;
@@ -388,8 +386,8 @@
                 );
             });
 
-            if (window.GZYLZ_CART) {
-                window.GZYLZ_CART.update();
+            if (window.CART) {
+                window.CART.update();
             }
         } catch (error) {
             const output = $("#home-results");
