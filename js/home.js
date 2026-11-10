@@ -386,9 +386,7 @@
                 );
             });
 
-            if (window.CART) {
-                window.CART.update();
-            }
+            window.CART.update();
         } catch (error) {
             const output = $("#home-results");
 
