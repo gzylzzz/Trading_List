@@ -599,6 +599,11 @@ a {
   align-items: center;
 }
 
+.dialog-head h3 {
+  font-size: 13px;
+  margin: 0;
+}
+
 .icon-button {
   border: 0;
   background: transparent;
