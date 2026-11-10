@@ -2,11 +2,7 @@
     const KEY = window.GZYLZ_CONFIG.cartStorageKey;
 
     function read() {
-        try {
-            return JSON.parse(localStorage.getItem(KEY) || "[]");
-        } catch (error) {
-            return [];
-        }
+        return JSON.parse(localStorage.getItem(KEY) || "[]");
     }
 
     function write(items) {
@@ -46,18 +42,9 @@
         });
 
         const contact = document.getElementById("contact-content-copy");
-
-        if (contact) {
-            contact.innerHTML = window.GZYLZ_TEXT
-                ? window.GZYLZ_TEXT.getContactHTML()
-                : "";
-        }
+        contact.innerHTML = window.GZYLZ_TEXT.getContactHTML();
 
         const box = document.getElementById("cart-content");
-
-        if (!box) {
-            return;
-        }
 
         if (items.length === 0) {
             box.innerHTML = '<p class="empty-state">empty</p>';
@@ -96,10 +83,8 @@
     function openCart() {
         const dialog = document.getElementById("cart-dialog");
 
-        if (dialog) {
-            update();
-            dialog.showModal();
-        }
+        update();
+        dialog.showModal();
     }
 
     document.querySelectorAll("[data-cart-open]").forEach(function (button) {
@@ -108,8 +93,7 @@
 
     const dialog = document.getElementById("cart-dialog");
 
-    if (dialog) {
-        dialog.addEventListener("click", function (event) {
+    dialog.addEventListener("click", function (event) {
             if (event.target.closest("[data-cart-close]")) {
                 dialog.close();
                 return;
@@ -196,8 +180,7 @@
                     }
                 });
             }
-        });
-    }
+    });
 
     const recordList = document.querySelector(
         "#home-results, #audio-groups, #video-records"
@@ -244,19 +227,9 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const selectedIds = new Set(read().map(function (item) {
-            return item.id;
-        }));
+    document.addEventListener("DOMContentLoaded", update);
 
-        document.querySelectorAll("[data-select-record]").forEach(function (checkbox) {
-            checkbox.checked = selectedIds.has(checkbox.dataset.selectRecord);
-        });
-
-        update();
-    });
-
-    window.GZYLZ_CART = {
+    window.CART = {
         read: read,
         update: update
     };
