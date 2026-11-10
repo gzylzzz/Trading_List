@@ -41,23 +41,6 @@
             "</span>";
     }
 
-    function giftClass(value) {
-        const text = String(value ?? "").trim().toLowerCase();
-
-        if (text.includes("never gift")) {
-            return "pill-never";
-        }
-
-        if (text.includes("limited trade")) {
-            return "pill-limited";
-        }
-
-        if (text.includes("only gift")) {
-            return "pill-only-gift";
-        }
-
-        return "";
-    }
 
     function record(recordData) {
         const kind = recordData._kind;
@@ -314,7 +297,6 @@
                 details.hidden = !open;
 
                 const summary = details.previousElementSibling;
-                summary.querySelector(".record-summary-button")
                 summary.classList.toggle("open", open);
             });
 
