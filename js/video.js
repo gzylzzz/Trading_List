@@ -27,23 +27,6 @@
         return String(value ?? "").trim().toLowerCase() === "true";
     }
 
-    function giftClass(value) {
-        const text = String(value ?? "").trim().toLowerCase();
-
-        if (text.includes("never gift")) {
-            return "pill-never";
-        }
-
-        if (text.includes("limited trade")) {
-            return "pill-limited";
-        }
-
-        if (text.includes("only gift")) {
-            return "pill-only-gift";
-        }
-
-        return "";
-    }
 
     function inline(value) {
         return escapeHTML(value)
@@ -238,7 +221,6 @@
 
     function setGroup(group, open, withDetails) {
         const list = group.querySelector(".record-list");
-        const toggle = group.querySelector(".group-toggle");
         const action = group.querySelector("[data-group-details]");
 
         list.hidden = !open;
@@ -257,7 +239,6 @@
                 details.hidden = !withDetails;
 
                 const summary = details.previousElementSibling;
-                summary.querySelector(".record-summary-button")
                 summary.classList.toggle("open", withDetails);
             });
         }
@@ -274,7 +255,6 @@
                 details.hidden = !open;
 
                 const summary = details.previousElementSibling;
-                summary.querySelector(".record-summary-button")
                 summary.classList.toggle("open", open);
             });
 
@@ -348,16 +328,11 @@
             const rows = await window.GZYLZ_DATA.loadRecords("video");
             render(rows);
 
-            window.CART.update();
         } catch (error) {
             $("#video-records").innerHTML =
                 '<div class="empty-state">Something went wrong…</div>';
         }
     }
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", init, { once: true });
-    } else {
-        init();
-    }
+    init();
 })();
