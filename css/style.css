@@ -128,7 +128,7 @@ a {
   margin-bottom: 0;
 }
 
-.home-note {
+.readme {
   height: 260px;
   display: flex;
   flex-direction: column;
@@ -138,13 +138,13 @@ a {
   padding: 15px 17px;
 }
 
-.home-note-title {
+.readme-title {
   margin: 0;
   font-size: 13px;
   font-weight: 600;
 }
 
-.home-note-content {
+.readme-content {
   flex: 1;
   min-height: 0;
   padding-top: 10px;
@@ -795,14 +795,14 @@ footer {
     align-items: start;
   }
 
-  .home-note {
+  .readme {
     height: 205px;
     min-width: 0;
     padding: 14px 13px;
     box-shadow: none;
   }
 
-  .home-note-content {
+  .readme-content {
     padding-top: 9px;
     font-size: 11px;
     line-height: 1.65;
