@@ -230,20 +230,18 @@
 
         box.innerHTML = html;
 
-        {
-            const selectedItems = window.CART.read();
-            const selectedIds = new Set(
-                selectedItems.map(function (item) {
-                    return item.id;
-                })
-            );
+        const selectedItems = window.CART.read();
+        const selectedIds = new Set(
+            selectedItems.map(function (item) {
+                return item.id;
+            })
+        );
 
-            box.querySelectorAll("[data-select-record]").forEach(function (checkbox) {
-                checkbox.checked = selectedIds.has(checkbox.dataset.selectRecord);
-            });
+        box.querySelectorAll("[data-select-record]").forEach(function (checkbox) {
+            checkbox.checked = selectedIds.has(checkbox.dataset.selectRecord);
+        });
 
-            window.CART.update();
-        }
+        window.CART.update();
     }
 
     function setGroup(group, open, withDetails) {
@@ -365,9 +363,7 @@
 
             render(rows);
 
-            if (window.CART) {
-                window.CART.update();
-            }
+            window.CART.update();
         } catch (error) {
             $("#audio-groups").innerHTML =
                 '<div class="empty-state">Something went wrong…</div>';
