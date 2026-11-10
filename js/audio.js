@@ -108,7 +108,7 @@
 
         const checkbox =
             '<input class="record-check" type="checkbox"' +
-            ' aria-label="Select ' + esc(show) + '"' +
+            '' +
             ' data-select-record="' + id + '"' +
             ' data-kind="Audio"' +
             ' data-line="' + esc(line) + '"' +
@@ -122,7 +122,7 @@
         const summary =
             '<div class="record-summary">' +
             checkbox +
-            '<button type="button" class="record-summary-button" aria-expanded="false">' +
+            '<button type="button" class="record-summary-button">' +
             '<span class="record-summary-main">' +
             '<span class="record-show">' +
             inline(show || "Untitled recording") +
@@ -209,7 +209,7 @@
             html +=
                 '<section class="show-group" data-group="' + index + '">' +
                 '<div class="group-heading">' +
-                '<button class="group-toggle" type="button" aria-expanded="false">' +
+                '<button class="group-toggle" type="button">' +
                 '<span class="group-name">' + esc(groupName) + "</span>" +
                 "</button>" +
                 action +
@@ -248,7 +248,6 @@
         list.hidden = !open;
 
         group.classList.toggle("open", open);
-        toggle.setAttribute("aria-expanded", String(open));
 
         if (action) {
             action.hidden = !open;
@@ -265,7 +264,6 @@
 
                 const summary = details.previousElementSibling;
 
-                summary.querySelector(".record-summary-button").setAttribute("aria-expanded", String(withDetails));
                 summary.classList.toggle("open", !!withDetails);
             });
         }
@@ -283,7 +281,6 @@
 
                 const summary = details.previousElementSibling;
 
-                summary.querySelector(".record-summary-button").setAttribute("aria-expanded", String(open));
                 summary.classList.toggle("open", open);
             });
 
@@ -352,7 +349,6 @@
 
             details.hidden = !open;
 
-            summary.setAttribute("aria-expanded", String(open));
             summary.parentElement.classList.toggle("open", open);
         }
     });
