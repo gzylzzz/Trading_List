@@ -1,19 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap&family=Anton:wght@400&display=swap');
 
 :root {
-  --page: #f7f5f1;
+  --page: #edebe9;
   --paper: #fffefa;
   --ink: #282723;
-  --muted: #858178;
-  --line: #e8e4dc;
+  --muted: #635f54;
+  --line: #c5b7ac;
   --accent: #7b665b;
   --accent-soft: #eee8e2;
-  --blue: #2879bd;
+  --blue: #368dd5;
   --green-bg: #e8f3e8;
   --green: #527b52;
   --red-bg: #fae9e7;
   --red: #a94d49;
-  --deep-red: #8e252b;
+  --deep-red: #91181f;
+  --orange-bg: ##d1a22b99;
+  --orange: ##d1a22be6;
   --pill: #f0eee9;
   --radius: 15px;
   --content: 940px;
@@ -266,7 +268,7 @@ a {
 .tile-arrow {
   margin-top: auto;
   font-size: 18px;
-  color: var(--accent);
+  color: var(--ink);
 }
 
 .page-heading {
@@ -527,18 +529,18 @@ a {
 }
 
 .pill-never {
-  background: #f7e3e3 !important;
-  color: #a34f55 !important;
+  background: var(--red-bg);
+  color: var(--red);
 }
 
 .pill-limited {
-  background: #f7efcf !important;
-  color: #8a6b20 !important;
+  background: var(--orange-bg);
+  color: var(--orange)
 }
 
 .pill-only-gift {
-  background: #e2eee3 !important;
-  color: #527b58 !important;
+  background: var(--green-bg);
+  color: var(--green);
 }
 
 .pill-nft {
