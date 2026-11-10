@@ -157,14 +157,14 @@
                 }
             }
 
-            const readMe = document.getElementById("home-note-content");
+            const readMe = document.getElementById("readme-content");
 
             if (readMe) {
                 readMe.innerHTML = format(content.readMe);
             }
 
             if (!content.readMe) {
-                const card = document.getElementById("home-note");
+                const card = document.getElementById("readme");
 
                 if (card) {
                     card.hidden = true;
