@@ -224,18 +224,16 @@
             box.innerHTML = '<div class="empty-state">0 video</div>';
         }
 
-        {
-            const selectedItems = window.CART.read();
-            const selectedIds = new Set(selectedItems.map(function (item) {
-                return item.id;
-            }));
+        const selectedItems = window.CART.read();
+        const selectedIds = new Set(selectedItems.map(function (item) {
+            return item.id;
+        }));
 
-            box.querySelectorAll("[data-select-record]").forEach(function (checkbox) {
-                checkbox.checked = selectedIds.has(checkbox.dataset.selectRecord);
-            });
+        box.querySelectorAll("[data-select-record]").forEach(function (checkbox) {
+            checkbox.checked = selectedIds.has(checkbox.dataset.selectRecord);
+        });
 
-            window.CART.update();
-        }
+        window.CART.update();
     }
 
     function setGroup(group, open, withDetails) {
@@ -350,9 +348,7 @@
             const rows = await window.GZYLZ_DATA.loadRecords("video");
             render(rows);
 
-            if (window.CART) {
-                window.CART.update();
-            }
+            window.CART.update();
         } catch (error) {
             $("#video-records").innerHTML =
                 '<div class="empty-state">Something went wrong…</div>';
