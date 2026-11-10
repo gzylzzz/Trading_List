@@ -27,23 +27,6 @@
         return String(value ?? "").trim().toLowerCase() === "true";
     };
 
-    const giftClass = function (value) {
-        const text = String(value ?? "").trim().toLowerCase();
-
-        if (text.includes("never gift")) {
-            return "pill-never";
-        }
-
-        if (text.includes("limited trade")) {
-            return "pill-limited";
-        }
-
-        if (text.includes("only gift")) {
-            return "pill-only-gift";
-        }
-
-        return "";
-    };
 
     const inline = function (value) {
         return esc(value)
@@ -246,7 +229,6 @@
 
     function setGroup(group, open, withDetails) {
         const list = group.querySelector(".record-list");
-        const toggle = group.querySelector(".group-toggle");
         const action = group.querySelector("[data-group-details]");
 
         list.hidden = !open;
@@ -363,16 +345,11 @@
 
             render(rows);
 
-            window.CART.update();
         } catch (error) {
             $("#audio-groups").innerHTML =
                 '<div class="empty-state">Something went wrong…</div>';
         }
     }
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", init, { once: true });
-    } else {
-        init();
-    }
+    init();
 })();
