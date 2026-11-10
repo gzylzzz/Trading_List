@@ -341,7 +341,7 @@
         }
     });
 
-    document.addEventListener("DOMContentLoaded", async function () {
+    async function init() {
         try {
             const results = await Promise.all([
                 window.GZYLZ_DATA.loadRecords("audio"),
@@ -377,5 +377,7 @@
                     '<div class="empty-state">Something went wrong…</div>';
             }
         }
-    });
+    }
+
+    init();
 })();
