@@ -224,8 +224,8 @@
             box.innerHTML = '<div class="empty-state">0 video</div>';
         }
 
-        if (window.GZYLZ_CART) {
-            const selectedItems = window.GZYLZ_CART.read();
+        {
+            const selectedItems = window.CART.read();
             const selectedIds = new Set(selectedItems.map(function (item) {
                 return item.id;
             }));
@@ -234,7 +234,7 @@
                 checkbox.checked = selectedIds.has(checkbox.dataset.selectRecord);
             });
 
-            window.GZYLZ_CART.update();
+            window.CART.update();
         }
     }
 
@@ -350,8 +350,8 @@
             const rows = await window.GZYLZ_DATA.loadRecords("video");
             render(rows);
 
-            if (window.GZYLZ_CART) {
-                window.GZYLZ_CART.update();
+            if (window.CART) {
+                window.CART.update();
             }
         } catch (error) {
             $("#video-records").innerHTML =
