@@ -84,13 +84,13 @@
             '<article class="record">' +
             '<div class="record-summary">' +
             '<input class="record-check" type="checkbox"' +
-            ' aria-label="Select ' + escapeHTML(show) + '"' +
+            '' +
             ' data-select-record="' + id + '"' +
             ' data-kind="' + kindName + '"' +
             ' data-line="' + escapeHTML(line) + '"' +
             (disabled ? ' disabled title="NFT EXCEPT THROUGH MASTER"' : "") +
             '>' +
-            '<button type="button" class="record-summary-button" aria-expanded="false">' +
+            '<button type="button" class="record-summary-button">' +
             '<span class="record-summary-main">' +
             '<span class="record-show">' + escapeHTML(show) + "</span>" +
             pill(kindName, "pill-type") +
@@ -254,7 +254,7 @@
             html +=
                 '<section class="show-group" data-group="' + index + '">' +
                 '<div class="group-heading">' +
-                '<button type="button" class="group-toggle" aria-expanded="false">' +
+                '<button type="button" class="group-toggle">' +
                 '<span class="group-name">' + escapeHTML(groupName) + "</span>" +
                 "</button>" +
                 action +
@@ -311,7 +311,6 @@
 
                 const summary = details.previousElementSibling;
                 summary.querySelector(".record-summary-button")
-                    .setAttribute("aria-expanded", String(open));
                 summary.classList.toggle("open", open);
             });
 
@@ -333,7 +332,6 @@
 
             list.hidden = !open;
             group.classList.toggle("open", open);
-            groupToggle.setAttribute("aria-expanded", String(open));
 
             const action = group.querySelector("[data-group-details]");
 
@@ -353,7 +351,6 @@
             const open = details.hidden;
 
             details.hidden = !open;
-            summaryButton.setAttribute("aria-expanded", String(open));
             summaryButton.parentElement.classList.toggle("open", open);
         }
     });
