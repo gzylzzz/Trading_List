@@ -94,35 +94,29 @@
     const dialog = document.getElementById("cart-dialog");
 
     dialog.addEventListener("click", function (event) {
-            if (event.target.closest("[data-cart-close]")) {
-                dialog.close();
-                return;
-            }
+        if (event.target.closest("[data-cart-close]")) {
+            dialog.close();
+            return;
+        }
 
-            if (event.target.closest("[data-cart-clear]")) {
-                write([]);
+        if (event.target.closest("[data-cart-clear]")) {
+            write([]);
+            document.getElementById("copy-status").textContent = "";
+            return;
+        }
 
-                const status = document.getElementById("copy-status");
+        const removeButton = event.target.closest("[data-remove]");
 
-                if (status) {
-                    status.textContent = "";
-                }
+        if (removeButton) {
+            const items = read().filter(function (item) {
+                return item.id !== removeButton.dataset.remove;
+            });
 
-                return;
-            }
+            write(items);
+            return;
+        }
 
-            const removeButton = event.target.closest("[data-remove]");
-
-            if (removeButton) {
-                const items = read().filter(function (item) {
-                    return item.id !== removeButton.dataset.remove;
-                });
-
-                write(items);
-                return;
-            }
-
-            if (event.target.closest("[data-cart-copy]")) {
+        if (event.target.closest("[data-cart-copy]")) {
                 const items = read();
                 const kinds = ["Audio", "Video"];
                 const sections = [];
@@ -163,21 +157,14 @@
                 const status = document.getElementById("copy-status");
 
                 if (!output) {
-                    if (status) {
-                        status.textContent = "empty";
-                    }
-
+                    status.textContent = "empty";
                     return;
                 }
 
                 navigator.clipboard.writeText(output).then(function () {
-                    if (status) {
-                        status.textContent = "Copied!";
-                    }
+                    status.textContent = "Copied!";
                 }).catch(function () {
-                    if (status) {
-                        status.textContent = "Copy is unavailable in this browser.";
-                    }
+                    status.textContent = "Copy is unavailable in this browser.";
                 });
             }
     });
@@ -186,8 +173,7 @@
         "#home-results, #audio-groups, #video-records"
     );
 
-    if (recordList) {
-        recordList.addEventListener("change", function (event) {
+    recordList.addEventListener("change", function (event) {
             const checkbox = event.target.closest("[data-select-record]");
 
             if (!checkbox) {
@@ -198,21 +184,15 @@
             const id = checkbox.dataset.selectRecord;
 
             if (checkbox.checked) {
-                const alreadySelected = items.some(function (item) {
-                    return item.id === id;
+                items.push({
+                    id: id,
+                    kind: checkbox.dataset.kind,
+                    line: checkbox.dataset.line,
+                    show: checkbox.dataset.show,
+                    date: checkbox.dataset.date,
+                    master: checkbox.dataset.master,
+                    size: checkbox.dataset.size
                 });
-
-                if (!alreadySelected) {
-                    items.push({
-                        id: id,
-                        kind: checkbox.dataset.kind,
-                        line: checkbox.dataset.line,
-                        show: checkbox.dataset.show,
-                        date: checkbox.dataset.date,
-                        master: checkbox.dataset.master,
-                        size: checkbox.dataset.size
-                    });
-                }
             } else {
                 const index = items.findIndex(function (item) {
                     return item.id === id;
@@ -224,8 +204,7 @@
             }
 
             write(items);
-        });
-    }
+    });
 
     document.addEventListener("DOMContentLoaded", update);
 
