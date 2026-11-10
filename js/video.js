@@ -107,7 +107,7 @@
             '<article class="record">' +
             '<div class="record-summary">' +
             '<input class="record-check" type="checkbox"' +
-            ' aria-label="Select ' + escapeHTML(show) + '"' +
+            '' +
             ' data-select-record="' + id + '"' +
             ' data-kind="Video"' +
             ' data-line="' + escapeHTML(line) + '"' +
@@ -117,7 +117,7 @@
             ' data-size="' + escapeHTML(size) + '"' +
             (disabled ? ' disabled title="NFT EXCEPT THROUGH MASTER"' : "") +
             ">" +
-            '<button type="button" class="record-summary-button" aria-expanded="false">' +
+            '<button type="button" class="record-summary-button">' +
             '<span class="record-summary-main">' +
             '<span class="record-show">' + inline(show || "Untitled recording") + "</span>" +
             '<span class="record-submeta">' +
@@ -194,7 +194,7 @@
             html +=
                 '<section class="show-group" data-group="' + index + '">' +
                 '<div class="group-heading">' +
-                '<button type="button" class="group-toggle" aria-expanded="false">' +
+                '<button type="button" class="group-toggle">' +
                 '<span class="group-name">' + escapeHTML(groupName) + "</span>" +
                 "</button>" +
                 action +
@@ -234,7 +234,6 @@
 
         list.hidden = !open;
         group.classList.toggle("open", open);
-        toggle.setAttribute("aria-expanded", String(open));
 
         if (action) {
             action.hidden = !open;
@@ -250,7 +249,6 @@
 
                 const summary = details.previousElementSibling;
                 summary.querySelector(".record-summary-button")
-                    .setAttribute("aria-expanded", String(withDetails));
                 summary.classList.toggle("open", withDetails);
             });
         }
@@ -268,7 +266,6 @@
 
                 const summary = details.previousElementSibling;
                 summary.querySelector(".record-summary-button")
-                    .setAttribute("aria-expanded", String(open));
                 summary.classList.toggle("open", open);
             });
 
@@ -333,7 +330,6 @@
             const open = details.hidden;
 
             details.hidden = !open;
-            summaryButton.setAttribute("aria-expanded", String(open));
             summaryButton.parentElement.classList.toggle("open", open);
         }
     });
