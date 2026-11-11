@@ -24,21 +24,19 @@
     function titleCaseShow(value) {
         value = clean(value);
 
-        if (value !== value.toUpperCase()) {
+        if (value !== value.toUpperCase() && value !== value.toLowerCase()) {
             return value;
         }
 
         const smallWords = ["a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "of", "on", "or", "the", "to", "with"];
 
-        return value.toLowerCase().split(" ").map(function (word, index) {
-            return word.split("-").map(function (part) {
-                if (index !== 0 && smallWords.includes(part)) {
-                    return part;
-                }
+        return value.toLowerCase().replace(/\b[a-z]+\b/gi, function (word, offset) {
+            if (offset > 0 && smallWords.includes(word)) {
+                return word;
+            }
 
-                return part.charAt(0).toUpperCase() + part.slice(1);
-            }).join("-");
-        }).join(" ");
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        });
     }
 
     function parseDate(value) {
@@ -95,7 +93,9 @@
                 row[dateHeader] = date;
                 dateFound = true;
             } else if (isFileType(part)) {
-                row[fileTypeHeader] = part.replace(/\s*\([^)]*\)/g, "").trim().toUpperCase();
+                row[fileTypeHeader] = part.replace(/\s*\([^)]*\)/g, "").trim().replace(/^\w+/, function (type) {
+                    return type.toUpperCase();
+                });
             } else if (/\b(untracked|tracked)\b/i.test(part)) {
                 if (kind === "Audio") {
                     row["tracked/untracked"] = /untracked/i.test(part) ? "untracked" : "tracked";
