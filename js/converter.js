@@ -104,7 +104,7 @@
                 row.Size = part.match(/\b\d+(?:\.\d+)?\s*(?:KB|MB|GB|TB)\b/i)[0].replace(/\s+/g, "");
                 const extra = part.replace(/\b\d+(?:\.\d+)?\s*(?:KB|MB|GB|TB)\b/i, "").replace(/[()]/g, "").trim();
                 if (extra) {
-                    addNote(row, extra);
+                    row.textSizeExtra = extra;
                 }
             } else if (part) {
                 production.push(part);
@@ -248,7 +248,7 @@
         const show = row.Show || "";
         const date = row[kind === "Audio" ? "Date (YYYY-MM-DD)" : "Date"] || "";
         const fileType = row[kind === "Audio" ? "Type" : "File Type"] || "";
-        const size = row.Size || "";
+        const size = row.Size ? row.Size + (row.textSizeExtra ? " (" + row.textSizeExtra + ")" : "") : "";
 
         headerLines.push(show);
 
