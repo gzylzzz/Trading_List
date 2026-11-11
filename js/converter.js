@@ -224,7 +224,7 @@
 
             if (isFileType(line)) {
                 row[fileTypeHeader] = line.match(/\b(mp3|m4a|wav|flac|mp4|mov|mkv|vobs?|avi|wmv|mpeg|m4v|webm)\b/i)[0].toUpperCase();
-                continue;
+                return;
             }
 
             if (!showSet && !row.Show) {
