@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f5f1">
+    <title>Text Converter — gzylz trades</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/converter.css">
+    <script defer src="js/converter.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="index.html">gzylz trades</a>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="audio.html">Audio</a>
+            <a href="video.html">Video</a>
+            <a class="active" href="converter.html">Converter</a>
+        </nav>
+        <a class="cart-trigger" href="index.html">Back</a>
+    </header>
+
+    <main class="page-main converter-main">
+        <div class="page-heading">
+            <div>
+                <h1>Text Converter</h1>
+                <p>Turn recording lists into TSV for Google Sheets.</p>
+            </div>
+        </div>
+
+        <section class="converter-section">
+            <label for="record-kind">List type</label>
+            <select id="record-kind">
+                <option value="Audio">Audio</option>
+                <option value="Video">Video</option>
+            </select>
+
+            <label for="source-text">Paste the original text</label>
+            <textarea id="source-text" rows="12" placeholder="Paste one or more recording entries here. Separate entries with a blank line."></textarea>
+
+            <div class="converter-actions">
+                <button class="button button-primary" id="convert-button" type="button">Convert to TSV</button>
+                <button class="button" id="clear-button" type="button">Clear</button>
+            </div>
+            <p class="converter-help">This first version recognises common labels, dates, file types and sizes. Please check the result before adding it to your list. Information it cannot identify is kept in Notes where possible.</p>
+        </section>
+
+        <section class="converter-section">
+            <div class="converter-output-heading">
+                <h2>TSV output</h2>
+                <button class="button" id="copy-button" type="button">Copy TSV</button>
+            </div>
+            <textarea id="tsv-output" rows="10" readonly placeholder="Your converted TSV will appear here."></textarea>
+            <p id="converter-status" class="converter-status"></p>
+        </section>
+    </main>
+    <footer></footer>
+</body>
+</html>
