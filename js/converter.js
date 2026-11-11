@@ -21,6 +21,24 @@
         return String(value || "").trim();
     }
 
+    function titleCaseShow(value) {
+        if (value !== value.toUpperCase()) {
+            return value;
+        }
+
+        const smallWords = ["a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "of", "on", "or", "the", "to", "with"];
+
+        return value.toLowerCase().split(" ").map(function (word, index) {
+            return word.split("-").map(function (part) {
+                if (index !== 0 && smallWords.includes(part)) {
+                    return part;
+                }
+
+                return part.charAt(0).toUpperCase() + part.slice(1);
+            }).join("-");
+        }).join(" ");
+    }
+
     function parseDate(text) {
         const value = text.replace(/\b(\d{1,2})(st|nd|rd|th)\b/gi, "$1").trim();
         let match = value.match(/\b(20\d{2})[-/.](\d{1,2})(?:[-/.](\d{1,2}))?\b/);
@@ -40,6 +58,59 @@
         return "";
     }
 
+    function isFileType(value) {
+        return /\b(mp3|m4a|wav|flac|mp4|mov|mkv|vobs?|avi|wmv|mpeg|m4v|webm)\b/i.test(value);
+    }
+
+    function addNote(row, value) {
+        value = clean(value);
+
+        if (!value) {
+            return;
+        }
+
+        row.Notes = row.Notes ? row.Notes + " " + value : value;
+    }
+
+    function parseMetadata(line, row, kind, dateHeader, fileTypeHeader) {
+        if (line.indexOf("|") === -1) {
+            return false;
+        }
+
+        const parts = line.split("|").map(clean);
+        let foundDate = false;
+        const production = [];
+
+        parts.forEach(function (part) {
+            const date = parseDate(part);
+
+            if (date) {
+                row[dateHeader] = date;
+                foundDate = true;
+            } else if (isFileType(part)) {
+                row[fileTypeHeader] = part;
+            } else if (/\b(untracked|tracked)\b/i.test(part)) {
+                if (kind === "Audio") {
+                    row["tracked/untracked"] = /untracked/i.test(part) ? "untracked" : "tracked";
+                }
+            } else if (/\b\d+(?:\.\d+)?\s*(?:KB|MB|GB|TB)\b/i.test(part)) {
+                row.Size = part.match(/\b\d+(?:\.\d+)?\s*(?:KB|MB|GB|TB)\b/i)[0].replace(/\s+/g, "");
+                const extra = part.replace(/\b\d+(?:\.\d+)?\s*(?:KB|MB|GB|TB)\b/i, "").replace(/[()]/g, "").trim();
+                if (extra) {
+                    addNote(row, extra);
+                }
+            } else if (part) {
+                production.push(part);
+            }
+        });
+
+        if (foundDate && production.length) {
+            row.Production = production.join(", ");
+        }
+
+        return foundDate;
+    }
+
     function parseEntry(block, kind) {
         const headers = kind === "Audio" ? audioHeaders : videoHeaders;
         const dateHeader = kind === "Audio" ? "Date (YYYY-MM-DD)" : "Date";
@@ -51,22 +122,19 @@
         });
 
         const lines = block.split(/\r?\n/).map(clean).filter(Boolean);
-        const notes = [];
         let showSet = false;
-        let productionSet = false;
 
         lines.forEach(function (line) {
             let match;
 
             if ((match = line.match(/^show\s*:\s*(.+)$/i))) {
-                row.Show = match[1];
+                row.Show = titleCaseShow(match[1]);
                 showSet = true;
                 return;
             }
 
             if ((match = line.match(/^production\s*:\s*(.+)$/i))) {
                 row.Production = match[1];
-                productionSet = true;
                 return;
             }
 
@@ -80,17 +148,17 @@
                 return;
             }
 
+            if ((match = line.match(/^notes?\s*:\s*(.+)$/i))) {
+                addNote(row, match[1]);
+                return;
+            }
+
             if ((match = line.match(/^my\s+notes?\s*:\s*(.+)$/i))) {
                 if (kind === "Audio") {
                     row["My Notes"] = match[1];
                 } else {
-                    notes.push(line);
+                    addNote(row, match[1]);
                 }
-                return;
-            }
-
-            if ((match = line.match(/^notes?\s*:\s*(.+)$/i))) {
-                row.Notes = match[1];
                 return;
             }
 
@@ -103,27 +171,36 @@
                 if (kind === "Audio") {
                     row.language = match[1];
                 } else {
-                    notes.push(line);
+                    addNote(row, match[1]);
                 }
                 return;
             }
 
-            const date = parseDate(line);
-            if (date && !row[dateHeader]) {
-                row[dateHeader] = date;
+            if (parseMetadata(line, row, kind, dateHeader, fileTypeHeader)) {
                 return;
             }
 
-            if (kind === "Audio" && /\b(untracked|tracked)\b/i.test(line)) {
-                row["tracked/untracked"] = /untracked/i.test(line) ? "untracked" : "tracked";
+            if (!row[dateHeader]) {
+                const date = parseDate(line);
+                if (date) {
+                    row[dateHeader] = date;
+                    return;
+                }
             }
 
-            if (!row[fileTypeHeader] && /\b(mp3|m4a|wav|flac|mp4|mov|mkv|vob|avi|wmv|mpeg|m4v|webm)\b/i.test(line)) {
-                row[fileTypeHeader] = line.match(/\b(mp3|m4a|wav|flac|mp4|mov|mkv|vob|avi|wmv|mpeg|m4v|webm)(?:\s*\+\s*\w+)?/i)[0].toUpperCase();
+            if (/\b(untracked|tracked)\b/i.test(line) && kind === "Audio") {
+                row["tracked/untracked"] = /untracked/i.test(line) ? "untracked" : "tracked";
+                return;
+            }
+
+            if (isFileType(line)) {
+                row[fileTypeHeader] = line;
+                return;
             }
 
             if (!row.Size && /\b\d+(?:\.\d+)?\s*(?:KB|MB|GB|TB)\b/i.test(line)) {
-                row.Size = line.match(/\b\d+(?:\.\d+)?\s*(?:KB|MB|GB|TB)\b/i)[0];
+                row.Size = line.match(/\b\d+(?:\.\d+)?\s*(?:KB|MB|GB|TB)\b/i)[0].replace(/\s+/g, "");
+                return;
             }
 
             if (/\bconcert\b/i.test(line)) {
@@ -134,24 +211,14 @@
                 row["NFT except through master"] = "TRUE";
             }
 
-            if (!showSet) {
-                row.Show = line;
+            if (!showSet && !row.Show) {
+                row.Show = titleCaseShow(line);
                 showSet = true;
                 return;
             }
 
-            if (!productionSet && !row.Production && !date) {
-                row.Production = line;
-                productionSet = true;
-                return;
-            }
-
-            notes.push(line);
+            addNote(row, line);
         });
-
-        if (notes.length && !row.Notes) {
-            row.Notes = notes.join(" ");
-        }
 
         return headers.map(function (header) {
             return String(row[header] || "").replace(/\t/g, " ").replace(/\r?\n/g, " ");
