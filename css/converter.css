@@ -1,0 +1,71 @@
+.converter-main {
+    max-width: 900px;
+}
+
+.converter-section {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin: 16px 0;
+}
+
+.converter-section label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 8px;
+}
+
+.converter-section select,
+.converter-section textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 12px;
+    font: 13px/1.6 "DM Sans", sans-serif;
+    margin-bottom: 18px;
+}
+
+.converter-section textarea {
+    resize: vertical;
+    font-family: monospace;
+}
+
+.converter-actions,
+.converter-output-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.converter-output-heading h2 {
+    font: 500 22px "Playfair Display", serif;
+    margin: 0;
+}
+
+.converter-help,
+.converter-status {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 14px 0 0;
+}
+
+.converter-status {
+    color: var(--green);
+    min-height: 18px;
+}
+
+@media (max-width: 620px) {
+    .converter-section {
+        padding: 16px;
+    }
+
+    .converter-output-heading {
+        align-items: flex-start;
+    }
+}
