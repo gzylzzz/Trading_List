@@ -3,13 +3,18 @@
         return document.querySelector(selector);
     };
 
-    const headers = [
-        "Kind", "Show", "Production", "Date (YYYY-MM-DD)", "Master",
-        "Cast", "Notes", "Type", "tracked/untracked", "Size",
-        "Never Gift", "NFT except through master", "My Notes", "Concert",
-        "language", "Highlights", "title", "Uncertain", "Limited trades 2:1",
-        "Only gift", "Date", "File Type", "Never gift", "Includes subtitles",
-        "tital", "Only Gift", "limited trade 2:1", "limited trade 3:1"
+    const audioHeaders = [
+        "Show", "Production", "Date (YYYY-MM-DD)", "Master", "Cast",
+        "Notes", "Type", "tracked/untracked", "Size", "Never Gift",
+        "NFT except through master", "My Notes", "Concert", "language",
+        "Highlights", "title", "Uncertain", "Limited trades 2:1", "Only gift"
+    ];
+
+    const videoHeaders = [
+        "Show", "Production", "Date", "Master", "Cast", "Notes",
+        "File Type", "Size", "Never gift", "NFT except through master",
+        "Highlights", "Concert", "Includes subtitles", "tital",
+        "Only Gift", "limited trade 2:1", "limited trade 3:1"
     ];
 
     function clean(value) {
@@ -36,12 +41,14 @@
     }
 
     function parseEntry(block, kind) {
+        const headers = kind === "Audio" ? audioHeaders : videoHeaders;
+        const dateHeader = kind === "Audio" ? "Date (YYYY-MM-DD)" : "Date";
+        const fileTypeHeader = kind === "Audio" ? "Type" : "File Type";
         const row = {};
+
         headers.forEach(function (header) {
             row[header] = "";
         });
-
-        row.Kind = kind;
 
         const lines = block.split(/\r?\n/).map(clean).filter(Boolean);
         const notes = [];
@@ -73,8 +80,17 @@
                 return;
             }
 
-            if ((match = line.match(/^(?:my\s+)?notes?\s*:\s*(.+)$/i))) {
-                row["My Notes"] = match[1];
+            if ((match = line.match(/^my\s+notes?\s*:\s*(.+)$/i))) {
+                if (kind === "Audio") {
+                    row["My Notes"] = match[1];
+                } else {
+                    notes.push(line);
+                }
+                return;
+            }
+
+            if ((match = line.match(/^notes?\s*:\s*(.+)$/i))) {
+                row.Notes = match[1];
                 return;
             }
 
@@ -84,22 +100,26 @@
             }
 
             if ((match = line.match(/^language\s*:\s*(.+)$/i))) {
-                row.language = match[1];
+                if (kind === "Audio") {
+                    row.language = match[1];
+                } else {
+                    notes.push(line);
+                }
                 return;
             }
 
             const date = parseDate(line);
-            if (date && !row["Date (YYYY-MM-DD)"]) {
-                row["Date (YYYY-MM-DD)"] = date;
+            if (date && !row[dateHeader]) {
+                row[dateHeader] = date;
                 return;
             }
 
-            if (/\b(untracked|tracked)\b/i.test(line)) {
+            if (kind === "Audio" && /\b(untracked|tracked)\b/i.test(line)) {
                 row["tracked/untracked"] = /untracked/i.test(line) ? "untracked" : "tracked";
             }
 
-            if (!row.Type && /\b(mp3|m4a|wav|flac|mp4|mov|mkv|vob|avi|wmv|mpeg|m4v|webm)\b/i.test(line)) {
-                row.Type = line.match(/\b(mp3|m4a|wav|flac|mp4|mov|mkv|vob|avi|wmv|mpeg|m4v|webm)(?:\s*\+\s*\w+)?/i)[0].toUpperCase();
+            if (!row[fileTypeHeader] && /\b(mp3|m4a|wav|flac|mp4|mov|mkv|vob|avi|wmv|mpeg|m4v|webm)\b/i.test(line)) {
+                row[fileTypeHeader] = line.match(/\b(mp3|m4a|wav|flac|mp4|mov|mkv|vob|avi|wmv|mpeg|m4v|webm)(?:\s*\+\s*\w+)?/i)[0].toUpperCase();
             }
 
             if (!row.Size && /\b\d+(?:\.\d+)?\s*(?:KB|MB|GB|TB)\b/i.test(line)) {
@@ -129,7 +149,7 @@
             notes.push(line);
         });
 
-        if (notes.length) {
+        if (notes.length && !row.Notes) {
             row.Notes = notes.join(" ");
         }
 
