@@ -194,8 +194,11 @@
                 if (/2\s*:\s*1/.test(line)) {
                     row[kind === "Audio" ? "Limited trades 2:1" : "limited trade 2:1"] = "TRUE";
                 }
-                if (/3\s*:\s*1/.test(line) && kind === "Video") {
-                    row["limited trade 3:1"] = "TRUE";
+                if (/3\s*:\s*1/.test(line)) {
+                    row.textLimitedThree = "TRUE";
+                    if (kind === "Video") {
+                        row["limited trade 3:1"] = "TRUE";
+                    }
                 }
                 return;
             }
@@ -240,24 +243,25 @@
     }
 
     function formatText(row, kind) {
-        const values = [];
+        const headerLines = [];
+        const sections = [];
         const show = row.Show || "";
         const date = row[kind === "Audio" ? "Date (YYYY-MM-DD)" : "Date"] || "";
         const fileType = row[kind === "Audio" ? "Type" : "File Type"] || "";
         const size = row.Size || "";
 
-        values.push(show);
+        headerLines.push(show);
 
         if (kind === "Audio") {
-            values.push([
+            headerLines.push([
                 row.Production, date, row.Master, row["tracked/untracked"]
             ].filter(Boolean).join(" | "));
 
             if (fileType || size) {
-                values.push("(" + [fileType, size].filter(Boolean).join(", ") + ")");
+                headerLines.push("(" + [fileType, size].filter(Boolean).join(", ") + ")");
             }
         } else {
-            values.push([
+            headerLines.push([
                 row.Production, date, row.Master, fileType, size
             ].filter(Boolean).join(" | "));
         }
@@ -266,7 +270,7 @@
         const neverGift = row[kind === "Audio" ? "Never Gift" : "Never gift"];
         const onlyGift = row[kind === "Audio" ? "Only gift" : "Only Gift"];
         const limitedTwo = row[kind === "Audio" ? "Limited trades 2:1" : "limited trade 2:1"];
-        const limitedThree = kind === "Video" ? row["limited trade 3:1"] : "";
+        const limitedThree = row.textLimitedThree || (kind === "Video" ? row["limited trade 3:1"] : "");
 
         if (neverGift) flags.push("Never Gift");
         if (row["NFT except through master"]) flags.push("NFT except through master");
@@ -278,22 +282,23 @@
         if (onlyGift) flags.push("Only Gift");
 
         if (flags.length) {
-            values.push(flags.join("、"));
+            headerLines.push(flags.join("、"));
         }
 
         if (row.Cast) {
-            values.push(row.Cast);
+            sections.push(row.Cast);
         }
 
         if (row.Notes) {
-            values.push("Notes: " + row.Notes);
+            sections.push("Notes: " + row.Notes);
         }
 
         if (kind === "Video" && row["My Notes"]) {
-            values.push("My Notes: " + row["My Notes"]);
+            sections.push("My Notes: " + row["My Notes"]);
         }
 
-        return values.filter(Boolean).join("\n\n");
+        return headerLines.filter(Boolean).join("\n") +
+            (sections.length ? "\n\n" + sections.join("\n\n") : "");
     }
 
     function toTSV(row, kind) {
