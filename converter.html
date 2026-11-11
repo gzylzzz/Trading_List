@@ -25,7 +25,7 @@
         <div class="page-heading">
             <div>
                 <h1>Text Converter</h1>
-                <p>Turn recording lists into TSV for Google Sheets.</p>
+                <p>Convert recording lists into your Text format and Google Sheets TSV.</p>
             </div>
         </div>
 
@@ -40,18 +40,26 @@
             <textarea id="source-text" rows="12" placeholder="Paste one or more recording entries here. Separate entries with a blank line."></textarea>
 
             <div class="converter-actions">
-                <button class="button button-primary" id="convert-button" type="button">Convert to TSV</button>
+                <button class="button button-primary" id="convert-button" type="button">Convert</button>
                 <button class="button" id="clear-button" type="button">Clear</button>
             </div>
-            <p class="converter-help">This first version recognises common labels, dates, file types and sizes. Please check the result before adding it to your list. Information it cannot identify is kept in Notes where possible.</p>
+            <p class="converter-help">The results are shown separately: Text for your readable list, and TSV for Google Sheets. Please check the results before using them.</p>
         </section>
 
         <section class="converter-section">
             <div class="converter-output-heading">
-                <h2>TSV output</h2>
-                <button class="button" id="copy-button" type="button">Copy TSV</button>
+                <h2>Text</h2>
+                <button class="button" id="copy-text-button" type="button">Copy Text</button>
             </div>
-            <textarea id="tsv-output" rows="10" readonly placeholder="Your converted TSV will appear here."></textarea>
+            <textarea id="text-output" rows="12" readonly placeholder="Your formatted text will appear here."></textarea>
+        </section>
+
+        <section class="converter-section">
+            <div class="converter-output-heading">
+                <h2>TSV</h2>
+                <button class="button" id="copy-tsv-button" type="button">Copy TSV</button>
+            </div>
+            <textarea id="tsv-output" rows="8" readonly placeholder="Your TSV for Google Sheets will appear here."></textarea>
             <p id="converter-status" class="converter-status"></p>
         </section>
     </main>
