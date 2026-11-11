@@ -22,6 +22,8 @@
     }
 
     function titleCaseShow(value) {
+        value = clean(value);
+
         if (value !== value.toUpperCase()) {
             return value;
         }
@@ -39,20 +41,28 @@
         }).join(" ");
     }
 
-    function parseDate(text) {
-        const value = text.replace(/\b(\d{1,2})(st|nd|rd|th)\b/gi, "$1").trim();
-        let match = value.match(/\b(20\d{2})[-/.](\d{1,2})(?:[-/.](\d{1,2}))?\b/);
+    function parseDate(value) {
+        value = value.replace(/\b(\d{1,2})(st|nd|rd|th)\b/gi, "$1").trim();
 
+        let match = value.match(/\b(20\d{2})[-/.](\d{1,2})[-/.](\d{1,2})\b/);
         if (match) {
-            return match[1] + "-" + match[2].padStart(2, "0") +
-                (match[3] ? "-" + match[3].padStart(2, "0") : "");
+            return match[1] + "-" + match[2].padStart(2, "0") + "-" + match[3].padStart(2, "0");
         }
 
-        const date = new Date(value);
-        if (!isNaN(date.getTime()) && /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(value)) {
-            return date.getFullYear() + "-" +
-                String(date.getMonth() + 1).padStart(2, "0") + "-" +
-                String(date.getDate()).padStart(2, "0");
+        match = value.match(/\b([A-Za-z]+)\s+(\d{1,2}),?\s+(20\d{2})\b/);
+        if (!match) {
+            match = value.match(/\b(\d{1,2})\s+([A-Za-z]+)\s+(20\d{2})\b/);
+            if (match) {
+                const month = new Date(match[2] + " 1, 2000").getMonth() + 1;
+                if (month > 0) {
+                    return match[3] + "-" + String(month).padStart(2, "0") + "-" + match[1].padStart(2, "0");
+                }
+            }
+        } else {
+            const month = new Date(match[1] + " 1, 2000").getMonth() + 1;
+            if (month > 0) {
+                return match[3] + "-" + String(month).padStart(2, "0") + "-" + match[2].padStart(2, "0");
+            }
         }
 
         return "";
@@ -64,12 +74,9 @@
 
     function addNote(row, value) {
         value = clean(value);
-
-        if (!value) {
-            return;
+        if (value) {
+            row.Notes = row.Notes ? row.Notes + " " + value : value;
         }
-
-        row.Notes = row.Notes ? row.Notes + " " + value : value;
     }
 
     function parseMetadata(line, row, kind, dateHeader, fileTypeHeader) {
@@ -78,7 +85,7 @@
         }
 
         const parts = line.split("|").map(clean);
-        let foundDate = false;
+        let dateFound = false;
         const production = [];
 
         parts.forEach(function (part) {
@@ -86,9 +93,9 @@
 
             if (date) {
                 row[dateHeader] = date;
-                foundDate = true;
+                dateFound = true;
             } else if (isFileType(part)) {
-                row[fileTypeHeader] = part;
+                row[fileTypeHeader] = part.replace(/\s*\([^)]*\)/g, "").trim().toUpperCase();
             } else if (/\b(untracked|tracked)\b/i.test(part)) {
                 if (kind === "Audio") {
                     row["tracked/untracked"] = /untracked/i.test(part) ? "untracked" : "tracked";
@@ -104,11 +111,11 @@
             }
         });
 
-        if (foundDate && production.length) {
+        if (dateFound && production.length) {
             row.Production = production.join(", ");
         }
 
-        return foundDate;
+        return dateFound;
     }
 
     function parseEntry(block, kind) {
@@ -143,7 +150,7 @@
                 return;
             }
 
-            if ((match = line.match(/^cast\s*:\s*(.+)$/i))) {
+            if ((match = line.match(/^cast\s*:\s*(.*)$/i))) {
                 row.Cast = match[1];
                 return;
             }
@@ -154,11 +161,7 @@
             }
 
             if ((match = line.match(/^my\s+notes?\s*:\s*(.+)$/i))) {
-                if (kind === "Audio") {
-                    row["My Notes"] = match[1];
-                } else {
-                    addNote(row, match[1]);
-                }
+                row["My Notes"] = match[1];
                 return;
             }
 
@@ -168,11 +171,37 @@
             }
 
             if ((match = line.match(/^language\s*:\s*(.+)$/i))) {
-                if (kind === "Audio") {
-                    row.language = match[1];
-                } else {
-                    addNote(row, match[1]);
+                row.language = match[1];
+                return;
+            }
+
+            if (/^never\s+gift$/i.test(line)) {
+                row[kind === "Audio" ? "Never Gift" : "Never gift"] = "TRUE";
+                return;
+            }
+
+            if (/^NFT except through master$/i.test(line)) {
+                row["NFT except through master"] = "TRUE";
+                return;
+            }
+
+            if (/^only\s+gift$/i.test(line)) {
+                row[kind === "Audio" ? "Only gift" : "Only Gift"] = "TRUE";
+                return;
+            }
+
+            if (/limited\s+trade/i.test(line)) {
+                if (/2\s*:\s*1/.test(line)) {
+                    row[kind === "Audio" ? "Limited trades 2:1" : "limited trade 2:1"] = "TRUE";
                 }
+                if (/3\s*:\s*1/.test(line) && kind === "Video") {
+                    row["limited trade 3:1"] = "TRUE";
+                }
+                return;
+            }
+
+            if (/includes?\s+subtitles/i.test(line) && kind === "Video") {
+                row["Includes subtitles"] = "TRUE";
                 return;
             }
 
@@ -194,21 +223,8 @@
             }
 
             if (isFileType(line)) {
-                row[fileTypeHeader] = line;
-                return;
-            }
-
-            if (!row.Size && /\b\d+(?:\.\d+)?\s*(?:KB|MB|GB|TB)\b/i.test(line)) {
-                row.Size = line.match(/\b\d+(?:\.\d+)?\s*(?:KB|MB|GB|TB)\b/i)[0].replace(/\s+/g, "");
-                return;
-            }
-
-            if (/\bconcert\b/i.test(line)) {
-                row.Concert = "TRUE";
-            }
-
-            if (/\bNFT except through master\b/i.test(line)) {
-                row["NFT except through master"] = "TRUE";
+                row[fileTypeHeader] = line.match(/\b(mp3|m4a|wav|flac|mp4|mov|mkv|vobs?|avi|wmv|mpeg|m4v|webm)\b/i)[0].toUpperCase();
+                continue;
             }
 
             if (!showSet && !row.Show) {
@@ -219,6 +235,69 @@
 
             addNote(row, line);
         });
+
+        return row;
+    }
+
+    function formatText(row, kind) {
+        const values = [];
+        const show = row.Show || "";
+        const date = row[kind === "Audio" ? "Date (YYYY-MM-DD)" : "Date"] || "";
+        const fileType = row[kind === "Audio" ? "Type" : "File Type"] || "";
+        const size = row.Size || "";
+
+        values.push(show);
+
+        if (kind === "Audio") {
+            values.push([
+                row.Production, date, row.Master, row["tracked/untracked"]
+            ].filter(Boolean).join(" | "));
+
+            if (fileType || size) {
+                values.push("(" + [fileType, size].filter(Boolean).join(", ") + ")");
+            }
+        } else {
+            values.push([
+                row.Production, date, row.Master, fileType, size
+            ].filter(Boolean).join(" | "));
+        }
+
+        const flags = [];
+        const neverGift = row[kind === "Audio" ? "Never Gift" : "Never gift"];
+        const onlyGift = row[kind === "Audio" ? "Only gift" : "Only Gift"];
+        const limitedTwo = row[kind === "Audio" ? "Limited trades 2:1" : "limited trade 2:1"];
+        const limitedThree = kind === "Video" ? row["limited trade 3:1"] : "";
+
+        if (neverGift) flags.push("Never Gift");
+        if (row["NFT except through master"]) flags.push("NFT except through master");
+        if (row.language) flags.push(row.language);
+        if (row.Highlights) flags.push(row.Highlights);
+        if (limitedTwo) flags.push("Limited trades (2:1)");
+        if (limitedThree) flags.push("Limited trades (3:1)");
+        if (kind === "Video" && row["Includes subtitles"]) flags.push("Includes subtitles");
+        if (onlyGift) flags.push("Only Gift");
+
+        if (flags.length) {
+            values.push(flags.join("、"));
+        }
+
+        if (row.Cast) {
+            values.push(row.Cast);
+        }
+
+        if (row.Notes) {
+            values.push("Notes: " + row.Notes);
+        }
+
+        if (kind === "Video" && row["My Notes"]) {
+            values.push("My Notes: " + row["My Notes"]);
+        }
+
+        return values.filter(Boolean).join("\n\n");
+    }
+
+    function toTSV(row, kind) {
+        const headers = kind === "Audio" ? audioHeaders : videoHeaders;
 
         return headers.map(function (header) {
             return String(row[header] || "").replace(/\t/g, " ").replace(/\r?\n/g, " ");
@@ -235,37 +314,52 @@
         }
 
         const blocks = source.split(/\r?\n\s*\r?\n+/).map(clean).filter(Boolean);
-        const output = blocks.map(function (block) {
+        const rows = blocks.map(function (block) {
             return parseEntry(block, kind);
         });
 
-        $("#tsv-output").value = output.join("\n");
+        $("#text-output").value = rows.map(function (row) {
+            return formatText(row, kind);
+        }).join("\n\n");
+
+        $("#tsv-output").value = rows.map(function (row) {
+            return toTSV(row, kind);
+        }).join("\n");
+
         $("#converter-status").textContent =
-            output.length + " entr" + (output.length === 1 ? "y" : "ies") +
-            " converted. Please review the columns before importing.";
+            rows.length + " entr" + (rows.length === 1 ? "y" : "ies") + " converted.";
     }
 
-    $("#convert-button").addEventListener("click", convert);
-
-    $("#copy-button").addEventListener("click", async function () {
-        const output = $("#tsv-output").value;
+    async function copyOutput(selector, label) {
+        const output = $(selector).value;
 
         if (!output) {
-            $("#converter-status").textContent = "There is no TSV to copy yet.";
+            $("#converter-status").textContent = "There is no " + label + " to copy yet.";
             return;
         }
 
         try {
             await navigator.clipboard.writeText(output);
-            $("#converter-status").textContent = "TSV copied!";
+            $("#converter-status").textContent = label + " copied!";
         } catch (error) {
-            $("#tsv-output").select();
-            $("#converter-status").textContent = "Select and copy the text manually.";
+            $(selector).select();
+            $("#converter-status").textContent = "Select and copy the " + label + " manually.";
         }
+    }
+
+    $("#convert-button").addEventListener("click", convert);
+
+    $("#copy-text-button").addEventListener("click", function () {
+        copyOutput("#text-output", "Text");
+    });
+
+    $("#copy-tsv-button").addEventListener("click", function () {
+        copyOutput("#tsv-output", "TSV");
     });
 
     $("#clear-button").addEventListener("click", function () {
         $("#source-text").value = "";
+        $("#text-output").value = "";
         $("#tsv-output").value = "";
         $("#converter-status").textContent = "";
     });
